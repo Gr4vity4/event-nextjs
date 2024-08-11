@@ -26,14 +26,16 @@ export const fetchEvents = createAsyncThunk(
     limit,
     sortField,
     sortOrder,
+    search,
   }: {
     page: number;
     limit: number;
     sortField: string;
     sortOrder: string;
+    search: string;
   }) => {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/events?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}`,
+      `${process.env.NEXT_PUBLIC_API_URL}/events?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
     );
 
     if (!response.ok) {
