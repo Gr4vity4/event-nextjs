@@ -1,95 +1,109 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
 
-export default function Home() {
-  return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
-            />
-          </a>
-        </div>
-      </div>
+// React and external dependencies
+import { useState } from "react";
+import {
+  Box,
+  Container,
+  Grid,
+  IconButton,
+  InputAdornment,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Clear as ClearIcon, Search as SearchIcon } from "@mui/icons-material";
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+// Internal types and components
+import { Event } from "@/types";
+import EventCard from "@/components/EventCard";
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+const EventsPage = () => {
+  const [searchTerm, setSearchTerm] = useState("");
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+  const events: Event[] = [
+    {
+      eventName: "Event name",
+      eventDate: "2024-10-01T00:00:00.000Z",
+      eventLocation: "Event location",
+      eventDescription: "Event description",
+      eventCapacity: 100,
+      prefixSeatNumber: "A",
+      beginSeatNumber: 1,
+      createdAt: "2024-08-10T11:37:07.171Z",
+      updatedAt: "2024-08-10T11:37:07.171Z",
+      signups: [],
+      signupCount: 100,
+      availableCapacity: 0,
+      id: "66b750e326e929c0f096e5a5",
+    },
+    {
+      eventName: "Event name 2",
+      eventDate: "2024-10-01T00:00:00.000Z",
+      eventLocation: "Event location",
+      eventDescription: "Event description",
+      eventCapacity: 100,
+      prefixSeatNumber: "A",
+      beginSeatNumber: 1,
+      createdAt: "2024-08-10T11:37:07.171Z",
+      updatedAt: "2024-08-10T11:37:07.171Z",
+      signups: [],
+      signupCount: 0,
+      availableCapacity: 100,
+      id: "66b750e326e929c0f096e5a5",
+    },
+  ];
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+  };
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+  const handleClearSearch = () => {
+    setSearchTerm("");
+  };
+
+  const filteredEvents = events.filter((event) =>
+    event.eventName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
-}
+
+  return (
+    <Container maxWidth="lg">
+      <Box my={4}>
+        <Typography variant="h2" component="h1" gutterBottom align="center">
+          Upcoming Events
+        </Typography>
+        <Box mb={4}>
+          <TextField
+            fullWidth
+            variant="outlined"
+            placeholder="Search events..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon />
+                </InputAdornment>
+              ),
+              endAdornment: searchTerm && (
+                <InputAdornment position="end">
+                  <IconButton onClick={handleClearSearch} edge="end">
+                    <ClearIcon />
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+        </Box>
+        <Grid container spacing={3}>
+          {filteredEvents.map((event) => (
+            <Grid item xs={12} sm={6} md={4} key={event.id}>
+              <EventCard event={event} />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Container>
+  );
+};
+
+export default EventsPage;
