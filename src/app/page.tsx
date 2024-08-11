@@ -1,7 +1,7 @@
 "use client";
 
 // React and external dependencies
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Container,
@@ -12,46 +12,29 @@ import {
   Typography,
 } from "@mui/material";
 import { Clear as ClearIcon, Search as SearchIcon } from "@mui/icons-material";
+import { useAppSelector, useAppDispatch } from "@/store/hooks";
+import { fetchEvents } from "@/slices/eventSlice";
 
 // Internal types and components
 import { Event } from "@/types";
 import EventCard from "@/components/EventCard";
 
 const EventsPage = () => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const { events, status, error } = useAppSelector((state) => state.event);
+  const dispatch = useAppDispatch();
 
-  const events: Event[] = [
-    {
-      eventName: "Event name",
-      eventDate: "2024-10-01T00:00:00.000Z",
-      eventLocation: "Event location",
-      eventDescription: "Event description",
-      eventCapacity: 100,
-      prefixSeatNumber: "A",
-      beginSeatNumber: 1,
-      createdAt: "2024-08-10T11:37:07.171Z",
-      updatedAt: "2024-08-10T11:37:07.171Z",
-      signups: [],
-      signupCount: 100,
-      availableCapacity: 0,
-      id: "66b750e326e929c0f096e5a5",
-    },
-    {
-      eventName: "Event name 2",
-      eventDate: "2024-10-01T00:00:00.000Z",
-      eventLocation: "Event location",
-      eventDescription: "Event description",
-      eventCapacity: 100,
-      prefixSeatNumber: "A",
-      beginSeatNumber: 1,
-      createdAt: "2024-08-10T11:37:07.171Z",
-      updatedAt: "2024-08-10T11:37:07.171Z",
-      signups: [],
-      signupCount: 0,
-      availableCapacity: 100,
-      id: "66b750e326e929c0f096e5a5",
-    },
-  ];
+  useEffect(() => {
+    dispatch(
+      fetchEvents({
+        page: 1,
+        limit: 10,
+        sortField: "eventDate",
+        sortOrder: "desc",
+      }),
+    );
+  }, [dispatch]);
+
+  const [searchTerm, setSearchTerm] = useState("");
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
@@ -61,7 +44,7 @@ const EventsPage = () => {
     setSearchTerm("");
   };
 
-  const filteredEvents = events.filter((event) =>
+  const filteredEvents: Event[] = events.filter((event: Event) =>
     event.eventName.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
@@ -95,11 +78,14 @@ const EventsPage = () => {
           />
         </Box>
         <Grid container spacing={3}>
-          {filteredEvents.map((event) => (
-            <Grid item xs={12} sm={6} md={4} key={event.id}>
-              <EventCard event={event} />
-            </Grid>
-          ))}
+          {status === "loading" && <p>Loading...</p>}
+          {status === "failed" && <p>Error: {error}</p>}
+          {status === "succeeded" &&
+            filteredEvents.map((event: Event) => (
+              <Grid item xs={12} sm={6} md={4} key={event.id}>
+                <EventCard event={event} />
+              </Grid>
+            ))}
         </Grid>
       </Box>
     </Container>
