@@ -23,7 +23,6 @@ const RegistrationModal = ({
     phoneNumber: "",
   });
   const [errors, setErrors] = useState<FormErrors>({});
-  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [apiError, setApiError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -32,22 +31,6 @@ const RegistrationModal = ({
       ...prevData,
       [name]: value,
     }));
-  };
-
-  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    const { name } = e.target;
-    setTouched((prev) => ({ ...prev, [name]: true }));
-    validateField(name, formData[name as keyof FormData]);
-  };
-
-  const validateField = (name: string, value: string) => {
-    let error = "";
-    if (!value.trim()) {
-      error = "This field is required";
-    } else if (name === "phoneNumber" && value.length < 10) {
-      error = "Phone must be at least 10 characters";
-    }
-    setErrors((prev) => ({ ...prev, [name]: error }));
   };
 
   const validateForm = (): boolean => {
@@ -140,10 +123,13 @@ const RegistrationModal = ({
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
-            onBlur={handleBlur}
-            error={touched.firstName && !!errors.firstName}
-            helperText={touched.firstName && errors.firstName}
+            error={!!errors.firstName}
+            helperText={errors.firstName}
             inputProps={{ maxLength: 254 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            required
           />
           <TextField
             fullWidth
@@ -152,10 +138,13 @@ const RegistrationModal = ({
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
-            onBlur={handleBlur}
-            error={touched.lastName && !!errors.lastName}
-            helperText={touched.lastName && errors.lastName}
+            error={!!errors.lastName}
+            helperText={errors.lastName}
             inputProps={{ maxLength: 254 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            required
           />
           <TextField
             fullWidth
@@ -164,10 +153,13 @@ const RegistrationModal = ({
             name="phoneNumber"
             value={formData.phoneNumber}
             onChange={handleChange}
-            onBlur={handleBlur}
-            error={touched.phoneNumber && !!errors.phoneNumber}
-            helperText={touched.phoneNumber && errors.phoneNumber}
+            error={!!errors.phoneNumber}
+            helperText={errors.phoneNumber}
             inputProps={{ maxLength: 30 }}
+            InputLabelProps={{
+              shrink: true,
+            }}
+            required
           />
           <Button
             type="submit"

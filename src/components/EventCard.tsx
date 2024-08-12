@@ -11,6 +11,7 @@ import {
 import { Event, LocationOn, People } from "@mui/icons-material";
 import RegistrationModal from "./RegistrationModal";
 import { EventCardProps } from "@/types";
+import { formatDate } from "@/utils/dateUtils";
 
 interface ExtendedEventCardProps extends EventCardProps {
   onRegistrationSuccess: () => void;
@@ -32,15 +33,6 @@ const EventCard: React.FC<ExtendedEventCardProps> = ({
     signupCount,
     availableCapacity,
   } = event;
-
-  const formatDate = (dateString: string): string => {
-    const options: Intl.DateTimeFormatOptions = {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return new Date(dateString).toLocaleDateString(undefined, options);
-  };
 
   const handleOpenModal = () => {
     setIsModalOpen(true);
