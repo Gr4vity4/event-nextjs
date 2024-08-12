@@ -30,3 +30,22 @@ export interface Event {
 export interface EventCardProps {
   event: Event;
 }
+
+export interface RegistrationModalProps {
+  open: boolean;
+  handleClose: () => void;
+  eventId: string;
+  onSubmitSuccess: () => void;
+}
+
+export interface FormData {
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+}
+
+export interface FormErrors {
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
+}
