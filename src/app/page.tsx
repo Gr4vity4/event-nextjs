@@ -37,7 +37,7 @@ const EventsPage = () => {
         page: currentPage,
         limit: 10,
         sortField: "eventDate",
-        sortOrder: "desc",
+        sortOrder: "asc",
         search: searchTerm,
       }),
     );
