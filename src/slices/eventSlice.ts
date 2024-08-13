@@ -1,29 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Event } from "@/types";
-
-interface EventState {
-  events: Event[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
-  total: number;
-  currentPage: number;
-  limit: number;
-  sortField: string;
-  sortOrder: string;
-  searchTerm: string;
-}
-
-const initialState: EventState = {
-  events: [],
-  status: "idle",
-  error: null,
-  total: 0,
-  currentPage: 1,
-  limit: 10,
-  sortField: "eventDate",
-  sortOrder: "desc",
-  searchTerm: "",
-};
+import { Event, initialEventState } from "@/types";
 
 export const fetchEvents = createAsyncThunk(
   "events/fetchEvents",
@@ -66,7 +42,7 @@ export const fetchEventById = createAsyncThunk(
 
 const eventSlice = createSlice({
   name: "event",
-  initialState,
+  initialState: initialEventState,
   reducers: {
     setSearchTerm: (state, action: PayloadAction<string>) => {
       state.searchTerm = action.payload;

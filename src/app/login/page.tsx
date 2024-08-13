@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Box,
@@ -10,23 +10,30 @@ import {
   Typography,
 } from "@mui/material";
 import { loginUser } from "@/slices/authSlice";
-import { useAppDispatch } from "@/store/hooks";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const dispatch = useAppDispatch();
+  const { status, accessToken } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    console.log(status, accessToken);
+    if (status === "succeeded" && accessToken) {
+      router.push("/dashboard");
+    }
+  }, [status, accessToken, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
     try {
-      const result = await dispatch(loginUser({ email, password })).unwrap();
-
-      // Redirect to the dashboard
-      console.log(result);
+      await dispatch(loginUser({ email, password })).unwrap();
     } catch (err) {
       setError("Invalid email or password. Please try again.");
     }

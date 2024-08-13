@@ -1,0 +1,287 @@
+"use client";
+
+import React, { useEffect, useState } from "react";
+import {
+  Alert,
+  Box,
+  Button,
+  Container,
+  Grid,
+  IconButton,
+  InputAdornment,
+  List,
+  ListItem,
+  ListItemSecondaryAction,
+  ListItemText,
+  Pagination,
+  Snackbar,
+  Stack,
+  TextField,
+} from "@mui/material";
+import {
+  Clear as ClearIcon,
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Search as SearchIcon,
+} from "@mui/icons-material";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  addEvent,
+  deleteEvent,
+  fetchEvents,
+  updateEvent,
+} from "@/slices/dashboardSlice";
+import { Event as EventDataType } from "@/types";
+import { formatDate } from "@/utils/dateUtils";
+import { useRouter } from "next/navigation";
+import EventForm from "@/components/EventForm";
+
+const DashboardPage = () => {
+  const router = useRouter();
+  const { events, status, error, total, limit } = useAppSelector(
+    (state) => state.event,
+  );
+  const dispatch = useAppDispatch();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [snackbarOptions, setSnackbarOptions] = useState<any>({
+    message: "",
+    severity: "",
+  });
+  const [open, setOpen] = useState(false);
+  const [formData, setFormData] = useState<any>({
+    id: "",
+    eventName: "",
+    eventDescription: "",
+    eventDate: "",
+  });
+  const [isEditing, setIsEditing] = useState(false);
+
+  const fetchEventData = () => {
+    dispatch(
+      fetchEvents({
+        page: currentPage,
+        limit: 10,
+        sortField: "createdAt",
+        sortOrder: "desc",
+        search: searchTerm,
+      }),
+    );
+  };
+
+  useEffect(() => {
+    fetchEventData();
+  }, [dispatch, currentPage, searchTerm, limit]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
+  const handlePageChange = (
+    _event: React.ChangeEvent<unknown>,
+    value: number,
+  ) => {
+    setCurrentPage(value);
+  };
+
+  const handleClickOpen = () => {
+    setOpen(true);
+    setIsEditing(false);
+    setFormData({ id: "", eventName: "", eventDescription: "", eventDate: "" });
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleSubmit = async () => {
+    let actionResult;
+    if (isEditing) {
+      actionResult = await dispatch(updateEvent(formData));
+    } else {
+      actionResult = await dispatch(addEvent(formData));
+    }
+
+    if (actionResult.type.endsWith("/fulfilled")) {
+      setSnackbarOptions({
+        message: isEditing
+          ? "Event updated successfully!"
+          : "Event added successfully!",
+        severity: "success",
+      });
+    } else if (actionResult.type.endsWith("/rejected")) {
+      setSnackbarOptions({
+        message: actionResult.payload || "Failed to process event",
+        severity: "error",
+      });
+    }
+
+    handleClose();
+    setShowSnackbar(true);
+    fetchEventData();
+  };
+
+  const handleEdit = (event: EventDataType) => {
+    setFormData(event);
+    setIsEditing(true);
+    setOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    const actionResult = await dispatch(deleteEvent(id));
+
+    if (actionResult.type.endsWith("/fulfilled")) {
+      setSnackbarOptions({
+        message: "Event deleted successfully!",
+        severity: "success",
+      });
+    } else if (actionResult.type.endsWith("/rejected")) {
+      setSnackbarOptions({
+        message: actionResult.payload || "Failed to delete event",
+        severity: "error",
+      });
+    }
+
+    setShowSnackbar(true);
+    fetchEventData();
+  };
+
+  const handleCloseSnackbar = (
+    event: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setShowSnackbar(false);
+  };
+
+  const handleFormChange = (field: string, value: string) => {
+    setFormData({ ...formData, [field]: value });
+  };
+
+  const totalPages = Math.ceil(total / limit);
+
+  const handleEventClick = (eventId: string) => {
+    router.push(`/dashboard/events/${eventId}`);
+  };
+
+  return (
+    <>
+      <Container maxWidth="lg">
+        <Box my={4}>
+          <Box mb={4}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: searchTerm && (
+                  <InputAdornment position="end">
+                    <IconButton onClick={handleClearSearch} edge="end">
+                      <ClearIcon />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Box>
+          <Box display="flex" justifyContent="flex-end">
+            <Button
+              variant="contained"
+              onClick={handleClickOpen}
+              sx={{ mb: 2 }}
+            >
+              Add New Event
+            </Button>
+          </Box>
+          <Grid container spacing={3}>
+            {status === "loading" && <p>Loading...</p>}
+            {status === "failed" && <p>Error: {error}</p>}
+            {status === "succeeded" && (
+              <Grid item xs={12}>
+                <List>
+                  {events.map((event: EventDataType) => (
+                    <ListItem
+                      key={event.id}
+                      button
+                      onClick={() => handleEventClick(event.id)}
+                    >
+                      <ListItemText
+                        primary={event.eventName}
+                        secondary={`${event.eventDescription} - ${formatDate(event.eventDate)}`}
+                      />
+                      <ListItemSecondaryAction>
+                        <IconButton
+                          edge="end"
+                          aria-label="edit"
+                          onClick={() => handleEdit(event)}
+                        >
+                          <EditIcon />
+                        </IconButton>
+                        <Box component="span" sx={{ width: 8 }} />{" "}
+                        <IconButton
+                          edge="end"
+                          aria-label="delete"
+                          onClick={() => handleDelete(event.id)}
+                        >
+                          <DeleteIcon />
+                        </IconButton>
+                      </ListItemSecondaryAction>
+                    </ListItem>
+                  ))}
+                </List>
+              </Grid>
+            )}
+          </Grid>
+          <Stack spacing={2} alignItems="center" mt={4}>
+            <Pagination
+              count={totalPages}
+              page={currentPage}
+              onChange={handlePageChange}
+              color="primary"
+            />
+          </Stack>
+        </Box>
+      </Container>
+      <EventForm
+        open={open}
+        isEditing={isEditing}
+        formData={formData}
+        onClose={handleClose}
+        onSubmit={handleSubmit}
+        onFormChange={handleFormChange}
+      />
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snackbarOptions.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarOptions.message}
+        </Alert>
+      </Snackbar>
+    </>
+  );
+};
+
+export default DashboardPage;

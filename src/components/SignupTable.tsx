@@ -15,9 +15,13 @@ import { Signup } from "@/types";
 
 interface SignupTableProps {
   signups: Signup[];
+  isFullDisplay?: boolean;
 }
 
-const SignupTable: React.FC<SignupTableProps> = ({ signups }) => {
+const SignupTable: React.FC<SignupTableProps> = ({
+  signups,
+  isFullDisplay = false,
+}) => {
   const [filteredSignups, setFilteredSignups] = useState<Signup[]>(signups);
   const [searchTerm, setSearchTerm] = useState("");
   const [orderBy, setOrderBy] = useState<keyof Signup>("createdAt");
@@ -74,6 +78,11 @@ const SignupTable: React.FC<SignupTableProps> = ({ signups }) => {
             <TableRow>
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>
+              {isFullDisplay && (
+                <>
+                  <TableCell>Phone Number</TableCell>
+                </>
+              )}
               <TableCell>Seat Number</TableCell>
               <TableCell>
                 <TableSortLabel
@@ -91,6 +100,11 @@ const SignupTable: React.FC<SignupTableProps> = ({ signups }) => {
               <TableRow key={signup._id}>
                 <TableCell>{signup.firstName}</TableCell>
                 <TableCell>{signup.lastName}</TableCell>
+                {isFullDisplay && (
+                  <>
+                    <TableCell>{signup.phoneNumber}</TableCell>
+                  </>
+                )}
                 <TableCell>{signup.seatNumber}</TableCell>
                 <TableCell>
                   {new Date(signup.createdAt).toLocaleString()}

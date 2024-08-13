@@ -53,3 +53,27 @@ export interface FormErrors {
 export interface ExtendedEventCardProps extends EventCardProps {
   onRegistrationSuccess: () => void;
 }
+
+export interface EventState {
+  events: Event[];
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+  total: number;
+  currentPage: number;
+  limit: number;
+  sortField: string;
+  sortOrder: string;
+  searchTerm: string;
+}
+
+export const initialEventState: EventState = {
+  events: [],
+  status: "idle",
+  error: null,
+  total: 0,
+  currentPage: 1,
+  limit: 10,
+  sortField: "eventDate",
+  sortOrder: "desc",
+  searchTerm: "",
+};
