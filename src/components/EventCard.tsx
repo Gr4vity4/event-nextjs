@@ -10,12 +10,8 @@ import {
 } from "@mui/material";
 import { Event, LocationOn, People } from "@mui/icons-material";
 import RegistrationModal from "./RegistrationModal";
-import { EventCardProps } from "@/types";
+import { ExtendedEventCardProps } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
-
-interface ExtendedEventCardProps extends EventCardProps {
-  onRegistrationSuccess: () => void;
-}
 
 const EventCard: React.FC<ExtendedEventCardProps> = ({
   event,

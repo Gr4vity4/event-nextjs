@@ -49,3 +49,7 @@ export interface FormErrors {
   lastName?: string;
   phoneNumber?: string;
 }
+
+export interface ExtendedEventCardProps extends EventCardProps {
+  onRegistrationSuccess: () => void;
+}
