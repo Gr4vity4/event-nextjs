@@ -6,6 +6,11 @@ import {
   Box,
   Button,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Grid,
   IconButton,
   InputAdornment,
@@ -57,6 +62,8 @@ const DashboardPage = () => {
     eventDate: "",
   });
   const [isEditing, setIsEditing] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
 
   const fetchEventData = () => {
     dispatch(
@@ -134,23 +141,36 @@ const DashboardPage = () => {
     setOpen(true);
   };
 
-  const handleDelete = async (id: string) => {
-    const actionResult = await dispatch(deleteEvent(id));
+  const handleDeleteConfirmOpen = (id: string) => {
+    setEventToDelete(id);
+    setDeleteConfirmOpen(true);
+  };
 
-    if (actionResult.type.endsWith("/fulfilled")) {
-      setSnackbarOptions({
-        message: "Event deleted successfully!",
-        severity: "success",
-      });
-    } else if (actionResult.type.endsWith("/rejected")) {
-      setSnackbarOptions({
-        message: actionResult.payload || "Failed to delete event",
-        severity: "error",
-      });
+  const handleDeleteConfirmClose = () => {
+    setDeleteConfirmOpen(false);
+    setEventToDelete(null);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (eventToDelete) {
+      const actionResult = await dispatch(deleteEvent(eventToDelete));
+
+      if (actionResult.type.endsWith("/fulfilled")) {
+        setSnackbarOptions({
+          message: "Event deleted successfully!",
+          severity: "success",
+        });
+      } else if (actionResult.type.endsWith("/rejected")) {
+        setSnackbarOptions({
+          message: actionResult.payload || "Failed to delete event",
+          severity: "error",
+        });
+      }
+
+      setShowSnackbar(true);
+      fetchEventData();
     }
-
-    setShowSnackbar(true);
-    fetchEventData();
+    handleDeleteConfirmClose();
   };
 
   const handleCloseSnackbar = (
@@ -237,7 +257,10 @@ const DashboardPage = () => {
                         <IconButton
                           edge="end"
                           aria-label="delete"
-                          onClick={() => handleDelete(event.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteConfirmOpen(event.id);
+                          }}
                         >
                           <DeleteIcon />
                         </IconButton>
@@ -266,6 +289,26 @@ const DashboardPage = () => {
         onSubmit={handleSubmit}
         onFormChange={handleFormChange}
       />
+      <Dialog
+        open={deleteConfirmOpen}
+        onClose={handleDeleteConfirmClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Are you sure you want to delete this event? This action cannot be
+            undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteConfirmClose}>Cancel</Button>
+          <Button onClick={handleDeleteConfirm} autoFocus>
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
       <Snackbar
         open={showSnackbar}
         autoHideDuration={3000}
