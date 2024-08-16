@@ -24,7 +24,7 @@ const EventListItem: React.FC<EventListItemProps> = ({
   onDeleteConfirm,
 }) => {
   return (
-    <ListItem key={event.id} onClick={() => onEventClick(event.id)}>
+    <ListItem key={event.id} onClick={() => onEventClick(event.id)} button>
       <ListItemText
         primary={event.eventName}
         secondary={`${event.eventDescription} - ${formatDate(event.eventDate)}`}
