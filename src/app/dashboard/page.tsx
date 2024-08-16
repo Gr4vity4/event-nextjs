@@ -15,20 +15,12 @@ import {
   IconButton,
   InputAdornment,
   List,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
   Pagination,
   Snackbar,
   Stack,
   TextField,
 } from "@mui/material";
-import {
-  Clear as ClearIcon,
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Search as SearchIcon,
-} from "@mui/icons-material";
+import { Clear as ClearIcon, Search as SearchIcon } from "@mui/icons-material";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   addEvent,
@@ -37,9 +29,9 @@ import {
   updateEvent,
 } from "@/slices/dashboardSlice";
 import { Event as EventDataType } from "@/types";
-import { formatDate } from "@/utils/dateUtils";
 import { useRouter } from "next/navigation";
-import EventForm from "@/components/EventForm";
+import EventForm from "@/components/Event/EventForm";
+import EventListItem from "@/components/Event/EventListItem";
 
 const DashboardPage = () => {
   const router = useRouter();
@@ -236,36 +228,13 @@ const DashboardPage = () => {
               <Grid item xs={12}>
                 <List>
                   {events.map((event: EventDataType) => (
-                    <ListItem
+                    <EventListItem
                       key={event.id}
-                      button
-                      onClick={() => handleEventClick(event.id)}
-                    >
-                      <ListItemText
-                        primary={event.eventName}
-                        secondary={`${event.eventDescription} - ${formatDate(event.eventDate)}`}
-                      />
-                      <ListItemSecondaryAction>
-                        <IconButton
-                          edge="end"
-                          aria-label="edit"
-                          onClick={() => handleEdit(event)}
-                        >
-                          <EditIcon />
-                        </IconButton>
-                        <Box component="span" sx={{ width: 8 }} />{" "}
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteConfirmOpen(event.id);
-                          }}
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </ListItemSecondaryAction>
-                    </ListItem>
+                      event={event}
+                      onEventClick={handleEventClick}
+                      onEdit={handleEdit}
+                      onDeleteConfirm={handleDeleteConfirmOpen}
+                    />
                   ))}
                 </List>
               </Grid>

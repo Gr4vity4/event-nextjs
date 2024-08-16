@@ -20,7 +20,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { fetchEvents } from "@/slices/eventSlice";
 
 import { Event as EventDataType } from "@/types";
-import EventCard from "@/components/EventCard";
+import EventCard from "@/components/Event/EventCard";
 
 const EventsPage = () => {
   const { events, status, error, total, limit } = useAppSelector(

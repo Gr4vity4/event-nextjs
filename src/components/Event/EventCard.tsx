@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Event, LocationOn, People } from "@mui/icons-material";
-import RegistrationModal from "./RegistrationModal";
+import RegistrationModal from "../RegistrationModal";
 import { ExtendedEventCardProps } from "@/types";
 import { formatDate } from "@/utils/dateUtils";
 
