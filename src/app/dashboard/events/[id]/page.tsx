@@ -34,7 +34,7 @@ const EventPage = ({ params }: { params: { id: string } }) => {
   }, [params.id]);
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       <Box my={4}>
         {status === 'loading' && <p>Loading...</p>}
         {status === 'failed' && <p>Error: {error}</p>}

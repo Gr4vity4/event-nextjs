@@ -58,7 +58,7 @@ const Dashboard: React.FC = () => {
   ];
 
   return (
-    <Container maxWidth="lg">
+    <Container maxWidth="xl">
       <Typography variant="h4" component="h1" gutterBottom>
         Dashboard
       </Typography>
