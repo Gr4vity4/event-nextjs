@@ -41,7 +41,7 @@ const EventPage = ({ params }: { params: { id: string } }) => {
         {status === 'succeeded' && (
           <>
             <Breadcrumbs separator={<NavigateNext fontSize="small" />} aria-label="breadcrumb">
-              <Link color="inherit" href="/dashboard">
+              <Link color="inherit" href="/dashboard/events">
                 Dashboard
               </Link>
               <Typography color="text.primary">{events[0].eventName}</Typography>

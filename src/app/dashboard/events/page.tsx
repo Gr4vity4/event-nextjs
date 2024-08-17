@@ -42,6 +42,7 @@ import {
   Edit as EditIcon,
   Search as SearchIcon,
   Sort as SortIcon,
+  Visibility as VisibilityIcon,
 } from '@mui/icons-material';
 
 import { Event as EventDataType } from '@/types';
@@ -320,6 +321,9 @@ const EventPage = () => {
                       <TableCell>{new Date(event.createdAt).toLocaleString()}</TableCell>
                       <TableCell>{new Date(event.updatedAt).toLocaleString()}</TableCell>
                       <TableCell align="right">
+                        <IconButton onClick={() => router.push(`/dashboard/events/${event.id}`)}>
+                          <VisibilityIcon />
+                        </IconButton>
                         <IconButton onClick={() => handleEdit(event)}>
                           <EditIcon />
                         </IconButton>
