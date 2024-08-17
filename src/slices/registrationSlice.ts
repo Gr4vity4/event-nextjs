@@ -5,8 +5,6 @@ import { getAccessToken } from './authSlice';
 export const fetchRegistrations = createAsyncThunk(
   'registrations/fetchRegistrations',
   async ({ page, limit, sortField, sortOrder, search }: FetchDataParams) => {
-    console.log('fetchRegistrations:', page, limit, sortField, sortOrder, search);
-
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/user-signup?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
       {
@@ -27,7 +25,7 @@ export const fetchRegistrations = createAsyncThunk(
 
 export const cancelRegistration = createAsyncThunk(
   'registrations/cancelRegistration',
-  async (id: string, { dispatch, getState }) => {
+  async (id: string) => {
     console.log('cancelRegistration:', id);
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user-signup/${id}/cancel`, {
@@ -41,20 +39,6 @@ export const cancelRegistration = createAsyncThunk(
     if (!response.ok) {
       throw new Error('Failed to cancel registration');
     }
-
-    // After successful cancellation, re-fetch the registrations
-    const state = getState() as { registration: RegistrationState };
-    const { currentPage, limit, sortField, sortOrder, searchTerm } = state.registration;
-
-    dispatch(
-      fetchRegistrations({
-        page: currentPage,
-        limit,
-        sortField,
-        sortOrder,
-        search: searchTerm,
-      }),
-    );
 
     return response.json();
   },
