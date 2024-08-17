@@ -5,6 +5,8 @@ import { getAccessToken } from './authSlice';
 export const fetchRegistrations = createAsyncThunk(
   'registrations/fetchRegistrations',
   async ({ page, limit, sortField, sortOrder, search }: FetchDataParams) => {
+    console.log('fetchRegistrations:', page, limit, sortField, sortOrder, search);
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/user-signup?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
       {
@@ -19,6 +21,41 @@ export const fetchRegistrations = createAsyncThunk(
     if (!response.ok) {
       throw new Error('Failed to fetch registrations');
     }
+    return response.json();
+  },
+);
+
+export const cancelRegistration = createAsyncThunk(
+  'registrations/cancelRegistration',
+  async (id: string, { dispatch, getState }) => {
+    console.log('cancelRegistration:', id);
+
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user-signup/${id}/cancel`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${getAccessToken()}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to cancel registration');
+    }
+
+    // After successful cancellation, re-fetch the registrations
+    const state = getState() as { registration: RegistrationState };
+    const { currentPage, limit, sortField, sortOrder, searchTerm } = state.registration;
+
+    dispatch(
+      fetchRegistrations({
+        page: currentPage,
+        limit,
+        sortField,
+        sortOrder,
+        search: searchTerm,
+      }),
+    );
+
     return response.json();
   },
 );
@@ -48,6 +85,12 @@ const registrationSlice = createSlice({
     setSortOrder: (state, action: PayloadAction<string>) => {
       state.sortOrder = action.payload;
     },
+    setCurrentPage: (state, action: PayloadAction<number>) => {
+      state.currentPage = action.payload;
+    },
+    setLimit: (state, action: PayloadAction<number>) => {
+      state.limit = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -58,6 +101,7 @@ const registrationSlice = createSlice({
         state.status = 'succeeded';
         state.registrations = action.payload.registrations;
         state.total = action.payload.total;
+        // state.limit = action.payload.limit;
       })
       .addCase(fetchRegistrations.rejected, (state, action) => {
         state.status = 'failed';
@@ -66,6 +110,7 @@ const registrationSlice = createSlice({
   },
 });
 
-export const { setSearchTerm, setSortField, setSortOrder } = registrationSlice.actions;
+export const { setSearchTerm, setSortField, setSortOrder, setCurrentPage, setLimit } =
+  registrationSlice.actions;
 
 export default registrationSlice.reducer;

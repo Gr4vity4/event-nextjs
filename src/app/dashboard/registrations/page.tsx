@@ -2,7 +2,15 @@
 
 import { useEffect, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { fetchRegistrations, setSortField, setSortOrder } from '@/slices/registrationSlice';
+import {
+  cancelRegistration,
+  fetchRegistrations,
+  setCurrentPage,
+  setLimit,
+  setSearchTerm,
+  setSortField,
+  setSortOrder,
+} from '@/slices/registrationSlice';
 
 import {
   Button,
@@ -36,76 +44,66 @@ import {
   Sort as SortIcon,
 } from '@mui/icons-material';
 
+import Notification from '@/components/Notification';
+
 const RegistrationPage: React.FC = () => {
-  const { registrations, status, error, total, limit, sortField, sortOrder } = useAppSelector(
-    (state) => state.registration,
-  );
+  const {
+    registrations,
+    status,
+    error,
+    total,
+    currentPage,
+    limit,
+    sortField,
+    sortOrder,
+    searchTerm,
+  } = useAppSelector((state) => state.registration);
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
+  });
 
   useEffect(() => {
     dispatch(
       fetchRegistrations({
         page: currentPage,
-        limit: 10,
-        sortField: 'createdAt',
-        sortOrder: 'desc',
-        search: searchTerm,
-      }),
-    );
-  }, []);
-
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm('');
-    setCurrentPage(1);
-  };
-
-  const handleChangePage = (event: unknown, newPage: number) => {
-    dispatch(
-      fetchRegistrations({
-        page: newPage + 1,
         limit,
         sortField,
         sortOrder,
         search: searchTerm,
       }),
     );
+  }, [dispatch, currentPage, limit, sortField, sortOrder, searchTerm]);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatch(setSearchTerm(event.target.value));
+    dispatch(setCurrentPage(1));
+  };
+
+  const handleClearSearch = () => {
+    dispatch(setSearchTerm(''));
+    dispatch(setCurrentPage(1));
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    dispatch(setCurrentPage(newPage + 1));
   };
 
   const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newLimit = parseInt(event.target.value, 10);
-    dispatch(
-      fetchRegistrations({
-        page: 1,
-        limit: newLimit,
-        sortField,
-        sortOrder,
-        search: searchTerm,
-      }),
-    );
+    dispatch(setLimit(newLimit));
+    dispatch(setCurrentPage(1));
   };
 
   const handleSort = (field: string) => {
     const newOrder = field === sortField && sortOrder === 'asc' ? 'desc' : 'asc';
     dispatch(setSortField(field));
     dispatch(setSortOrder(newOrder));
-    dispatch(
-      fetchRegistrations({
-        page: currentPage,
-        limit,
-        sortField: field,
-        sortOrder: newOrder,
-        search: searchTerm,
-      }),
-    );
   };
 
   const handleOpenDialog = (id: string) => {
@@ -118,13 +116,35 @@ const RegistrationPage: React.FC = () => {
     setSelectedId(null);
   };
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     if (selectedId) {
-      handleCloseDialog();
+      try {
+        const resultAction = await dispatch(cancelRegistration(selectedId));
+
+        if (cancelRegistration.fulfilled.match(resultAction)) {
+          setNotification({
+            open: true,
+            message: 'Registration cancelled successfully',
+            severity: 'success',
+          });
+        } else if (cancelRegistration.rejected.match(resultAction)) {
+          throw new Error(resultAction.error.message || 'Failed to cancel registration');
+        }
+      } catch (error) {
+        setNotification({
+          open: true,
+          message: error instanceof Error ? error.message : 'An unknown error occurred',
+          severity: 'error',
+        });
+      } finally {
+        handleCloseDialog();
+      }
     }
   };
 
-  console.log('registrations', registrations);
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
+  };
 
   return (
     <Container maxWidth="lg">
@@ -212,7 +232,12 @@ const RegistrationPage: React.FC = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => handleOpenDialog(registration.id)}>Cancel</Button>
+                    <Button
+                      disabled={!registration.isActive}
+                      onClick={() => handleOpenDialog(registration.id)}
+                    >
+                      Cancel
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -242,6 +267,12 @@ const RegistrationPage: React.FC = () => {
           </Button>
         </DialogActions>
       </Dialog>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={handleCloseNotification}
+      />
     </Container>
   );
 };
