@@ -106,3 +106,7 @@ export interface FetchDataState {
 export interface RegistrationState extends FetchDataState {
   registrations: UserSignup[];
 }
+
+export interface DashboardState extends FetchDataState {
+  events: Event[];
+}

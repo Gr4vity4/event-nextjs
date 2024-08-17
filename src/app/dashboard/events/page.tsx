@@ -1,6 +1,18 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import {
+  addEvent,
+  deleteEvent,
+  fetchEvents,
+  setCurrentPage,
+  setLimit,
+  setSearchTerm,
+  setSortField,
+  setSortOrder,
+  updateEvent,
+} from '@/slices/dashboardSlice';
 import {
   Box,
   Button,
@@ -13,14 +25,13 @@ import {
   Grid,
   IconButton,
   InputAdornment,
-  Pagination,
   Paper,
-  Stack,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TextField,
   Typography,
@@ -30,9 +41,9 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon,
   Search as SearchIcon,
+  Sort as SortIcon,
 } from '@mui/icons-material';
-import { useAppDispatch, useAppSelector } from '@/store/hooks';
-import { addEvent, deleteEvent, fetchEvents, updateEvent } from '@/slices/dashboardSlice';
+
 import { Event as EventDataType } from '@/types';
 import { useRouter } from 'next/navigation';
 import EventForm from '@/components/Event/EventForm';
@@ -41,10 +52,10 @@ import Notification from '@/components/Notification';
 
 const EventPage = () => {
   const router = useRouter();
-  const { events, status, error, total, limit } = useAppSelector((state) => state.event);
+  const { events, status, error, total, currentPage, limit, sortField, sortOrder, searchTerm } =
+    useAppSelector((state) => state.dashboard);
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<any>({
     id: '',
@@ -61,25 +72,21 @@ const EventPage = () => {
     severity: 'success' as 'success' | 'error' | 'info' | 'warning',
   });
 
-  const fetchEventData = () => {
+  useEffect(() => {
     dispatch(
       fetchEvents({
         page: currentPage,
-        limit: 10,
-        sortField: 'createdAt',
-        sortOrder: 'desc',
+        limit,
+        sortField,
+        sortOrder,
         search: searchTerm,
       }),
     );
-  };
-
-  useEffect(() => {
-    fetchEventData();
-  }, [dispatch, currentPage, searchTerm, limit]);
+  }, [dispatch, currentPage, limit, sortField, sortOrder, searchTerm]);
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    setCurrentPage(1);
+    dispatch(setSearchTerm(event.target.value));
+    dispatch(setCurrentPage(1));
   };
 
   const handleClearSearch = () => {
@@ -87,8 +94,14 @@ const EventPage = () => {
     setCurrentPage(1);
   };
 
-  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
-    setCurrentPage(value);
+  const handleChangePage = (event: unknown, newPage: number) => {
+    dispatch(setCurrentPage(newPage + 1));
+  };
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newLimit = parseInt(event.target.value, 10);
+    dispatch(setLimit(newLimit));
+    dispatch(setCurrentPage(1));
   };
 
   const handleClickOpen = () => {
@@ -102,29 +115,39 @@ const EventPage = () => {
   };
 
   const handleSubmit = async () => {
-    let actionResult;
+    let status: boolean;
     if (isEditing) {
-      actionResult = await dispatch(updateEvent(formData));
+      const resultAction = await dispatch(updateEvent(formData));
+      status = updateEvent.fulfilled.match(resultAction);
     } else {
-      actionResult = await dispatch(addEvent(formData));
+      const resultAction = await dispatch(addEvent(formData));
+      status = addEvent.fulfilled.match(resultAction);
     }
 
-    if (actionResult.type.endsWith('/fulfilled')) {
+    if (status) {
       setNotification({
         open: true,
         message: isEditing ? 'Event updated successfully!' : 'Event added successfully!',
         severity: 'success',
       });
-    } else if (actionResult.type.endsWith('/rejected')) {
+      dispatch(
+        fetchEvents({
+          page: currentPage,
+          limit,
+          sortField: 'createdAt',
+          sortOrder: 'desc',
+          search: searchTerm,
+        }),
+      );
+    } else {
       setNotification({
         open: true,
-        message: actionResult.payload || 'Failed to process event',
+        message: 'Failed to process event',
         severity: 'error',
       });
     }
 
     handleClose();
-    fetchEventData();
   };
 
   const handleEdit = (event: EventDataType) => {
@@ -154,6 +177,9 @@ const EventPage = () => {
             message: 'Event deleted successfully!',
             severity: 'success',
           });
+          dispatch(
+            fetchEvents({ page: currentPage, limit, sortField, sortOrder, search: searchTerm }),
+          );
         } else if (deleteEvent.rejected.match(resultAction)) {
           throw new Error(resultAction.error.message || 'Failed to delete event');
         }
@@ -164,17 +190,14 @@ const EventPage = () => {
           severity: 'error',
         });
       } finally {
-        fetchEventData();
+        handleDeleteConfirmClose();
       }
     }
-    handleDeleteConfirmClose();
   };
 
   const handleFormChange = (field: string, value: string) => {
     setFormData({ ...formData, [field]: value });
   };
-
-  const totalPages = Math.ceil(total / limit);
 
   const handleEventClick = (eventId: string) => {
     router.push(`/dashboard/events/${eventId}`);
@@ -182,6 +205,12 @@ const EventPage = () => {
 
   const handleCloseNotification = () => {
     setNotification({ ...notification, open: false });
+  };
+
+  const handleSort = (field: string) => {
+    const newOrder = field === sortField && sortOrder === 'asc' ? 'desc' : 'asc';
+    dispatch(setSortField(field));
+    dispatch(setSortOrder(newOrder));
   };
 
   return (
@@ -234,7 +263,19 @@ const EventPage = () => {
                   <TableCell>Description</TableCell>
                   <TableCell>Location</TableCell>
                   <TableCell>Date</TableCell>
-                  <TableCell>Capacity</TableCell>
+                  <TableCell>
+                    Capacity
+                    <IconButton size="small" onClick={() => handleSort('signupCount')}>
+                      <SortIcon />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>
+                    Created At
+                    <IconButton size="small" onClick={() => handleSort('createdAt')}>
+                      <SortIcon />
+                    </IconButton>
+                  </TableCell>
+                  <TableCell>Updated At</TableCell>
                   <TableCell align="right">Actions</TableCell>
                 </TableRow>
               </TableHead>
@@ -276,6 +317,8 @@ const EventPage = () => {
                       <TableCell>
                         {event.signupCount}/{event.eventCapacity}
                       </TableCell>
+                      <TableCell>{new Date(event.createdAt).toLocaleString()}</TableCell>
+                      <TableCell>{new Date(event.updatedAt).toLocaleString()}</TableCell>
                       <TableCell align="right">
                         <IconButton onClick={() => handleEdit(event)}>
                           <EditIcon />
@@ -289,14 +332,14 @@ const EventPage = () => {
               </TableBody>
             </Table>
           </TableContainer>
-          <Stack spacing={2} alignItems="center" mt={4}>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-            />
-          </Stack>
+          <TablePagination
+            component="div"
+            count={total}
+            page={currentPage - 1}
+            onPageChange={handleChangePage}
+            rowsPerPage={limit}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
         </Box>
       </Container>
       <EventForm

@@ -127,6 +127,16 @@ const RegistrationPage: React.FC = () => {
             message: 'Registration cancelled successfully',
             severity: 'success',
           });
+
+          dispatch(
+            fetchRegistrations({
+              page: currentPage,
+              limit,
+              sortField,
+              sortOrder,
+              search: searchTerm,
+            }),
+          );
         } else if (cancelRegistration.rejected.match(resultAction)) {
           throw new Error(resultAction.error.message || 'Failed to cancel registration');
         }
@@ -154,7 +164,7 @@ const RegistrationPage: React.FC = () => {
       <TextField
         fullWidth
         variant="outlined"
-        placeholder="Search..."
+        placeholder="Search registrations ..."
         value={searchTerm}
         onChange={handleSearchChange}
         size="small"
@@ -188,7 +198,6 @@ const RegistrationPage: React.FC = () => {
               <TableCell>Last Name</TableCell>
               <TableCell>Phone Number</TableCell>
               <TableCell>Seat Number</TableCell>
-
               <TableCell>Status</TableCell>
               <TableCell>Action</TableCell>
             </TableRow>

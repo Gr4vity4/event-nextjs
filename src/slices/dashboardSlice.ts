@@ -1,5 +1,5 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { Event as EventDataType, EventState } from '@/types';
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Event as EventDataType, EventState, FetchDataParams } from '@/types';
 import { getAccessToken } from './authSlice';
 
 const createHeaders = () => {
@@ -12,19 +12,7 @@ const createHeaders = () => {
 
 export const fetchEvents = createAsyncThunk(
   'events/fetchEvents',
-  async ({
-    page,
-    limit,
-    sortField,
-    sortOrder,
-    search,
-  }: {
-    page: number;
-    limit: number;
-    sortField: string;
-    sortOrder: string;
-    search: string;
-  }) => {
+  async ({ page, limit, sortField, sortOrder, search }: FetchDataParams) => {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/events?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
     );
@@ -46,7 +34,7 @@ export const fetchEventById = createAsyncThunk('events/fetchEventById', async (i
 
 export const addEvent = createAsyncThunk(
   'events/addEvent',
-  async (event: Omit<Event, 'id'>, { rejectWithValue }) => {
+  async (event: Omit<Event, 'id'>, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, {
         method: 'POST',
@@ -54,7 +42,8 @@ export const addEvent = createAsyncThunk(
         body: JSON.stringify(event),
       });
       if (!response.ok) throw new Error('Failed to add events');
-      return await response.json();
+
+      return response.json();
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -63,7 +52,7 @@ export const addEvent = createAsyncThunk(
 
 export const updateEvent = createAsyncThunk(
   'events/updateEvent',
-  async (event: EventDataType, { rejectWithValue }) => {
+  async (event: EventDataType, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${event.id}`, {
         method: 'PATCH',
@@ -71,7 +60,8 @@ export const updateEvent = createAsyncThunk(
         body: JSON.stringify(event),
       });
       if (!response.ok) throw new Error('Failed to update events');
-      return await response.json();
+
+      return response.json();
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -80,14 +70,15 @@ export const updateEvent = createAsyncThunk(
 
 export const deleteEvent = createAsyncThunk(
   'events/deleteEvent',
-  async (id: string, { rejectWithValue }) => {
+  async (id: string, { dispatch, getState, rejectWithValue }) => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
         method: 'DELETE',
         headers: createHeaders(),
       });
       if (!response.ok) throw new Error('Failed to delete events');
-      return id;
+
+      return response.json();
     } catch (error) {
       return rejectWithValue((error as Error).message);
     }
@@ -101,15 +92,31 @@ const initialEventState: EventState = {
   total: 0,
   currentPage: 1,
   limit: 10,
-  sortField: 'eventDate',
+  sortField: 'createdAt',
   sortOrder: 'desc',
   searchTerm: '',
 };
 
-const eventsSlice = createSlice({
+const dashboardSlice = createSlice({
   name: 'events',
   initialState: initialEventState,
-  reducers: {},
+  reducers: {
+    setSearchTerm: (state, action: PayloadAction<string>) => {
+      state.searchTerm = action.payload;
+    },
+    setSortField: (state, action: PayloadAction<string>) => {
+      state.sortField = action.payload;
+    },
+    setSortOrder: (state, action: PayloadAction<string>) => {
+      state.sortOrder = action.payload;
+    },
+    setCurrentPage: (state, action: PayloadAction<number>) => {
+      state.currentPage = action.payload;
+    },
+    setLimit: (state, action: PayloadAction<number>) => {
+      state.limit = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchEvents.pending, (state) => {
@@ -117,7 +124,8 @@ const eventsSlice = createSlice({
       })
       .addCase(fetchEvents.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.events = action.payload;
+        state.events = action.payload.events;
+        state.total = action.payload.total;
       })
       .addCase(fetchEvents.rejected, (state, action) => {
         state.status = 'failed';
@@ -146,4 +154,7 @@ const eventsSlice = createSlice({
   },
 });
 
-export default eventsSlice.reducer;
+export const { setSearchTerm, setSortField, setSortOrder, setCurrentPage, setLimit } =
+  dashboardSlice.actions;
+
+export default dashboardSlice.reducer;
