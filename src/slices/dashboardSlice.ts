@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Event as EventDataType, initialEventState } from "@/types";
+import { Event as EventDataType, EventState } from "@/types";
 import { getAccessToken } from "./authSlice";
 
 const createHeaders = () => {
@@ -107,6 +107,18 @@ export const deleteEvent = createAsyncThunk(
     }
   },
 );
+
+const initialEventState: EventState = {
+  events: [],
+  status: "idle",
+  error: null,
+  total: 0,
+  currentPage: 1,
+  limit: 10,
+  sortField: "eventDate",
+  sortOrder: "desc",
+  searchTerm: "",
+};
 
 const eventsSlice = createSlice({
   name: "events",

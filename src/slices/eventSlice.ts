@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Event, initialEventState } from "@/types";
+import { Event, EventState } from "@/types";
 
 export const fetchEvents = createAsyncThunk(
   "events/fetchEvents",
@@ -39,6 +39,18 @@ export const fetchEventById = createAsyncThunk(
     return response.json();
   },
 );
+
+const initialEventState: EventState = {
+  events: [],
+  status: "idle",
+  error: null,
+  total: 0,
+  currentPage: 1,
+  limit: 10,
+  sortField: "eventDate",
+  sortOrder: "desc",
+  searchTerm: "",
+};
 
 const eventSlice = createSlice({
   name: "event",
