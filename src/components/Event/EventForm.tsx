@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   Button,
   Dialog,
@@ -6,7 +6,7 @@ import {
   DialogContent,
   DialogTitle,
   TextField,
-} from "@mui/material";
+} from '@mui/material';
 
 interface EventFormProps {
   open: boolean;
@@ -22,7 +22,7 @@ interface EventFormProps {
     beginSeatNumber: number;
   };
   onClose: () => void;
-  onSubmit: (formData: EventFormProps["formData"]) => void;
+  onSubmit: (formData: EventFormProps['formData']) => void;
   onFormChange: (field: string, value: string) => void;
 }
 
@@ -36,15 +36,15 @@ const EventForm: React.FC<EventFormProps> = ({
 }) => {
   // Function to safely format the date from ISO 8601 to YYYY-MM-DD
   const formatDate = (dateString: string): string => {
-    if (!dateString) return "";
+    if (!dateString) return '';
 
     const date = new Date(dateString);
     if (isNaN(date.getTime())) {
-      console.error("Invalid date:", dateString);
-      return "";
+      console.error('Invalid date:', dateString);
+      return '';
     }
 
-    return date.toISOString().split("T")[0];
+    return date.toISOString().split('T')[0];
   };
 
   // Function to handle date change and convert it back to ISO 8601
@@ -53,30 +53,26 @@ const EventForm: React.FC<EventFormProps> = ({
     if (inputDate) {
       const date = new Date(inputDate);
       if (!isNaN(date.getTime())) {
-        onFormChange("eventDate", date.toISOString());
+        onFormChange('eventDate', date.toISOString());
       } else {
-        console.error("Invalid date input:", inputDate);
+        console.error('Invalid date input:', inputDate);
       }
     } else {
-      onFormChange("eventDate", "");
+      onFormChange('eventDate', '');
     }
   };
 
   const validateForm = () => {
     const newErrors: { [key: string]: string } = {};
-    if (!formData.eventName.trim())
-      newErrors.eventName = "Event Name is required";
+    if (!formData.eventName.trim()) newErrors.eventName = 'Event Name is required';
     if (!formData.eventDescription.trim())
-      newErrors.eventDescription = "Event Description is required";
-    if (!formData.eventLocation.trim())
-      newErrors.eventLocation = "Event Location is required";
-    if (!formData.eventDate) newErrors.eventDate = "Event Date is required";
-    if (!formData.eventCapacity)
-      newErrors.eventCapacity = "Event Capacity is required";
+      newErrors.eventDescription = 'Event Description is required';
+    if (!formData.eventLocation.trim()) newErrors.eventLocation = 'Event Location is required';
+    if (!formData.eventDate) newErrors.eventDate = 'Event Date is required';
+    if (!formData.eventCapacity) newErrors.eventCapacity = 'Event Capacity is required';
     if (!formData.prefixSeatNumber.trim())
-      newErrors.prefixSeatNumber = "Prefix Seat Number is required";
-    if (!formData.beginSeatNumber)
-      newErrors.beginSeatNumber = "Begin Seat Number is required";
+      newErrors.prefixSeatNumber = 'Prefix Seat Number is required';
+    if (!formData.beginSeatNumber) newErrors.beginSeatNumber = 'Begin Seat Number is required';
 
     return Object.keys(newErrors).length === 0;
   };
@@ -91,7 +87,7 @@ const EventForm: React.FC<EventFormProps> = ({
   return (
     <Dialog open={open} onClose={onClose}>
       <form onSubmit={handleSubmit}>
-        <DialogTitle>{isEditing ? "Edit Event" : "Add New Event"}</DialogTitle>
+        <DialogTitle>{isEditing ? 'Edit Event' : 'Add New Event'}</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -100,7 +96,7 @@ const EventForm: React.FC<EventFormProps> = ({
             type="text"
             fullWidth
             value={formData.eventName}
-            onChange={(e) => onFormChange("eventName", e.target.value)}
+            onChange={(e) => onFormChange('eventName', e.target.value)}
             required
           />
           <TextField
@@ -110,7 +106,7 @@ const EventForm: React.FC<EventFormProps> = ({
             rows={4}
             fullWidth
             value={formData.eventDescription}
-            onChange={(e) => onFormChange("eventDescription", e.target.value)}
+            onChange={(e) => onFormChange('eventDescription', e.target.value)}
             required
           />
           <TextField
@@ -119,7 +115,7 @@ const EventForm: React.FC<EventFormProps> = ({
             type="text"
             fullWidth
             value={formData.eventLocation}
-            onChange={(e) => onFormChange("eventLocation", e.target.value)}
+            onChange={(e) => onFormChange('eventLocation', e.target.value)}
             required
           />
           <TextField
@@ -138,7 +134,7 @@ const EventForm: React.FC<EventFormProps> = ({
             type="number"
             fullWidth
             value={formData.eventCapacity}
-            onChange={(e) => onFormChange("eventCapacity", e.target.value)}
+            onChange={(e) => onFormChange('eventCapacity', e.target.value)}
             required
           />
           <TextField
@@ -147,7 +143,7 @@ const EventForm: React.FC<EventFormProps> = ({
             type="text"
             fullWidth
             value={formData.prefixSeatNumber}
-            onChange={(e) => onFormChange("prefixSeatNumber", e.target.value)}
+            onChange={(e) => onFormChange('prefixSeatNumber', e.target.value)}
             required
           />
           <TextField
@@ -156,13 +152,13 @@ const EventForm: React.FC<EventFormProps> = ({
             type="number"
             fullWidth
             value={formData.beginSeatNumber}
-            onChange={(e) => onFormChange("beginSeatNumber", e.target.value)}
+            onChange={(e) => onFormChange('beginSeatNumber', e.target.value)}
             required
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
-          <Button type="submit">{isEditing ? "Update" : "Add"}</Button>
+          <Button type="submit">{isEditing ? 'Update' : 'Add'}</Button>
         </DialogActions>
       </form>
     </Dialog>

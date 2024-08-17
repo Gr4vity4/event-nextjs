@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -26,44 +26,37 @@ import {
   TableRow,
   TextField,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
 import {
   Clear as ClearIcon,
   Delete as DeleteIcon,
   Edit as EditIcon,
   Search as SearchIcon,
-} from "@mui/icons-material";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  addEvent,
-  deleteEvent,
-  fetchEvents,
-  updateEvent,
-} from "@/slices/dashboardSlice";
-import { Event as EventDataType } from "@/types";
-import { useRouter } from "next/navigation";
-import EventForm from "@/components/Event/EventForm";
-import { formatDate } from "@/utils/dateUtils";
+} from '@mui/icons-material';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { addEvent, deleteEvent, fetchEvents, updateEvent } from '@/slices/dashboardSlice';
+import { Event as EventDataType } from '@/types';
+import { useRouter } from 'next/navigation';
+import EventForm from '@/components/Event/EventForm';
+import { formatDate } from '@/utils/dateUtils';
 
 const EventPage = () => {
   const router = useRouter();
-  const { events, status, error, total, limit } = useAppSelector(
-    (state) => state.event,
-  );
+  const { events, status, error, total, limit } = useAppSelector((state) => state.event);
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showSnackbar, setShowSnackbar] = useState(false);
   const [snackbarOptions, setSnackbarOptions] = useState<any>({
-    message: "",
-    severity: "",
+    message: '',
+    severity: '',
   });
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<any>({
-    id: "",
-    eventName: "",
-    eventDescription: "",
-    eventDate: "",
+    id: '',
+    eventName: '',
+    eventDescription: '',
+    eventDate: '',
   });
   const [isEditing, setIsEditing] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -74,8 +67,8 @@ const EventPage = () => {
       fetchEvents({
         page: currentPage,
         limit: 10,
-        sortField: "createdAt",
-        sortOrder: "desc",
+        sortField: 'createdAt',
+        sortOrder: 'desc',
         search: searchTerm,
       }),
     );
@@ -91,21 +84,18 @@ const EventPage = () => {
   };
 
   const handleClearSearch = () => {
-    setSearchTerm("");
+    setSearchTerm('');
     setCurrentPage(1);
   };
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
   const handleClickOpen = () => {
     setOpen(true);
     setIsEditing(false);
-    setFormData({ id: "", eventName: "", eventDescription: "", eventDate: "" });
+    setFormData({ id: '', eventName: '', eventDescription: '', eventDate: '' });
   };
 
   const handleClose = () => {
@@ -120,17 +110,15 @@ const EventPage = () => {
       actionResult = await dispatch(addEvent(formData));
     }
 
-    if (actionResult.type.endsWith("/fulfilled")) {
+    if (actionResult.type.endsWith('/fulfilled')) {
       setSnackbarOptions({
-        message: isEditing
-          ? "Event updated successfully!"
-          : "Event added successfully!",
-        severity: "success",
+        message: isEditing ? 'Event updated successfully!' : 'Event added successfully!',
+        severity: 'success',
       });
-    } else if (actionResult.type.endsWith("/rejected")) {
+    } else if (actionResult.type.endsWith('/rejected')) {
       setSnackbarOptions({
-        message: actionResult.payload || "Failed to process event",
-        severity: "error",
+        message: actionResult.payload || 'Failed to process event',
+        severity: 'error',
       });
     }
 
@@ -159,15 +147,15 @@ const EventPage = () => {
     if (eventToDelete) {
       const actionResult = await dispatch(deleteEvent(eventToDelete));
 
-      if (actionResult.type.endsWith("/fulfilled")) {
+      if (actionResult.type.endsWith('/fulfilled')) {
         setSnackbarOptions({
-          message: "Event deleted successfully!",
-          severity: "success",
+          message: 'Event deleted successfully!',
+          severity: 'success',
         });
-      } else if (actionResult.type.endsWith("/rejected")) {
+      } else if (actionResult.type.endsWith('/rejected')) {
         setSnackbarOptions({
-          message: actionResult.payload || "Failed to delete event",
-          severity: "error",
+          message: actionResult.payload || 'Failed to delete event',
+          severity: 'error',
         });
       }
 
@@ -177,11 +165,8 @@ const EventPage = () => {
     handleDeleteConfirmClose();
   };
 
-  const handleCloseSnackbar = (
-    event: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === "clickaway") {
+  const handleCloseSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === 'clickaway') {
       return;
     }
     setShowSnackbar(false);
@@ -252,31 +237,31 @@ const EventPage = () => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {status === "loading" && (
+                {status === 'loading' && (
                   <TableRow>
                     <TableCell colSpan={4} align="center">
                       Loading...
                     </TableCell>
                   </TableRow>
                 )}
-                {status === "failed" && (
+                {status === 'failed' && (
                   <TableRow>
                     <TableCell colSpan={4} align="center">
                       Error: {error}
                     </TableCell>
                   </TableRow>
                 )}
-                {status === "succeeded" &&
+                {status === 'succeeded' &&
                   events.map((event: EventDataType) => (
                     <TableRow
                       key={event.id}
-                      sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                      sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                     >
                       <TableCell
                         component="th"
                         scope="row"
                         onClick={() => handleEventClick(event.id)}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: 'pointer' }}
                       >
                         {event.eventName}
                       </TableCell>
@@ -293,9 +278,7 @@ const EventPage = () => {
                         <IconButton onClick={() => handleEdit(event)}>
                           <EditIcon />
                         </IconButton>
-                        <IconButton
-                          onClick={() => handleDeleteConfirmOpen(event.id)}
-                        >
+                        <IconButton onClick={() => handleDeleteConfirmOpen(event.id)}>
                           <DeleteIcon />
                         </IconButton>
                       </TableCell>
@@ -328,11 +311,10 @@ const EventPage = () => {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{'Confirm Delete'}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this event? This action cannot be
-            undone.
+            Are you sure you want to delete this event? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -346,12 +328,12 @@ const EventPage = () => {
         open={showSnackbar}
         autoHideDuration={3000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
         <Alert
           onClose={handleCloseSnackbar}
           severity={snackbarOptions.severity}
-          sx={{ width: "100%" }}
+          sx={{ width: '100%' }}
         >
           {snackbarOptions.message}
         </Alert>

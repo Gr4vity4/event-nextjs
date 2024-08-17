@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react';
 import {
   Box,
   Paper,
@@ -10,22 +10,19 @@ import {
   TableRow,
   TableSortLabel,
   TextField,
-} from "@mui/material";
-import { Signup } from "@/types";
+} from '@mui/material';
+import { Signup } from '@/types';
 
 interface SignupTableProps {
   signups: Signup[];
   isFullDisplay?: boolean;
 }
 
-const SignupTable: React.FC<SignupTableProps> = ({
-  signups,
-  isFullDisplay = false,
-}) => {
+const SignupTable: React.FC<SignupTableProps> = ({ signups, isFullDisplay = false }) => {
   const [filteredSignups, setFilteredSignups] = useState<Signup[]>(signups);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [orderBy, setOrderBy] = useState<keyof Signup>("createdAt");
-  const [order, setOrder] = useState<"asc" | "desc">("desc");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [orderBy, setOrderBy] = useState<keyof Signup>('createdAt');
+  const [order, setOrder] = useState<'asc' | 'desc'>('desc');
 
   useEffect(() => {
     const filtered = signups.filter(
@@ -40,23 +37,23 @@ const SignupTable: React.FC<SignupTableProps> = ({
   const sortSignups = (
     signupsToSort: Signup[],
     property: keyof Signup,
-    sortOrder: "asc" | "desc",
+    sortOrder: 'asc' | 'desc',
   ): Signup[] => {
     return [...signupsToSort].sort((a, b) => {
-      if (property === "createdAt") {
-        return sortOrder === "asc"
+      if (property === 'createdAt') {
+        return sortOrder === 'asc'
           ? new Date(a[property]).getTime() - new Date(b[property]).getTime()
           : new Date(b[property]).getTime() - new Date(a[property]).getTime();
       }
-      if (a[property] < b[property]) return sortOrder === "asc" ? -1 : 1;
-      if (a[property] > b[property]) return sortOrder === "asc" ? 1 : -1;
+      if (a[property] < b[property]) return sortOrder === 'asc' ? -1 : 1;
+      if (a[property] > b[property]) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
   };
 
   const handleSort = (property: keyof Signup) => {
-    const isAsc = orderBy === property && order === "asc";
-    const newOrder = isAsc ? "desc" : "asc";
+    const isAsc = orderBy === property && order === 'asc';
+    const newOrder = isAsc ? 'desc' : 'asc';
     setOrder(newOrder);
     setOrderBy(property);
     setFilteredSignups(sortSignups(filteredSignups, property, newOrder));
@@ -86,9 +83,9 @@ const SignupTable: React.FC<SignupTableProps> = ({
               <TableCell>Seat Number</TableCell>
               <TableCell>
                 <TableSortLabel
-                  active={orderBy === "createdAt"}
+                  active={orderBy === 'createdAt'}
                   direction={order}
-                  onClick={() => handleSort("createdAt")}
+                  onClick={() => handleSort('createdAt')}
                 >
                   Created At
                 </TableSortLabel>
@@ -106,9 +103,7 @@ const SignupTable: React.FC<SignupTableProps> = ({
                   </>
                 )}
                 <TableCell>{signup.seatNumber}</TableCell>
-                <TableCell>
-                  {new Date(signup.createdAt).toLocaleString()}
-                </TableCell>
+                <TableCell>{new Date(signup.createdAt).toLocaleString()}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import { useAppDispatch } from "@/store/hooks";
-import { logoutUser } from "@/slices/authSlice";
+import React, { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useAppDispatch } from '@/store/hooks';
+import { logoutUser } from '@/slices/authSlice';
 import {
   AppBar,
   Box,
@@ -18,26 +18,26 @@ import {
   Typography,
   useMediaQuery,
   useTheme,
-} from "@mui/material";
+} from '@mui/material';
 import {
   AppRegistration as RegistrationIcon,
   Dashboard as DashboardIcon,
   Event as EventIcon,
   Logout as LogoutIcon,
   Menu as MenuIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
 const menuItems = [
-  { text: "Dashboard", icon: <DashboardIcon />, path: "/dashboard" },
-  { text: "Events", icon: <EventIcon />, path: "/dashboard/events" },
+  { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
+  { text: 'Events', icon: <EventIcon />, path: '/dashboard/events' },
   {
-    text: "Registrations",
+    text: 'Registrations',
     icon: <RegistrationIcon />,
-    path: "/dashboard/registrations",
+    path: '/dashboard/registrations',
   },
 ];
 
@@ -46,7 +46,7 @@ export default function Layout({ children }: LayoutProps) {
   const pathname = usePathname();
   const dispatch = useAppDispatch();
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const handleDrawerToggle = () => {
@@ -56,9 +56,9 @@ export default function Layout({ children }: LayoutProps) {
   const handleLogout = async () => {
     try {
       await dispatch(logoutUser()).unwrap();
-      router.push("/login");
+      router.push('/login');
     } catch (error) {
-      console.error("Logout failed:", error);
+      console.error('Logout failed:', error);
     }
   };
 
@@ -85,13 +85,13 @@ export default function Layout({ children }: LayoutProps) {
             onClick={() => handleNavigation(item.path)}
             selected={pathname === item.path}
             sx={{
-              "&.Mui-selected": {
+              '&.Mui-selected': {
                 // backgroundColor: theme.palette.primary.main,
-                backgroundColor: "rgba(0, 0, 0, 0.08)", // Light gray background
+                backgroundColor: 'rgba(0, 0, 0, 0.08)', // Light gray background
                 // color: theme.palette.primary.contrastText,
-                "&:hover": {
+                '&:hover': {
                   // backgroundColor: theme.palette.primary.dark,
-                  backgroundColor: "rgba(0, 0, 0, 0.12)", // Slightly darker on hover
+                  backgroundColor: 'rgba(0, 0, 0, 0.12)', // Slightly darker on hover
                 },
               },
             }}
@@ -105,11 +105,8 @@ export default function Layout({ children }: LayoutProps) {
   );
 
   return (
-    <Box sx={{ display: "flex" }}>
-      <AppBar
-        position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
+    <Box sx={{ display: 'flex' }}>
+      <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           {isMobile && (
             <IconButton
@@ -125,11 +122,7 @@ export default function Layout({ children }: LayoutProps) {
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             Events Management
           </Typography>
-          <Button
-            color="inherit"
-            onClick={handleLogout}
-            startIcon={<LogoutIcon />}
-          >
+          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
             Logout
           </Button>
         </Toolbar>
@@ -148,8 +141,8 @@ export default function Layout({ children }: LayoutProps) {
               keepMounted: true, // Better open performance on mobile.
             }}
             sx={{
-              display: { xs: "block", sm: "none" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
+              display: { xs: 'block', sm: 'none' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
             }}
           >
             {drawer}
@@ -158,8 +151,8 @@ export default function Layout({ children }: LayoutProps) {
           <Drawer
             variant="permanent"
             sx={{
-              display: { xs: "none", sm: "block" },
-              "& .MuiDrawer-paper": { boxSizing: "border-box", width: 240 },
+              display: { xs: 'none', sm: 'block' },
+              '& .MuiDrawer-paper': { boxSizing: 'border-box', width: 240 },
             }}
             open
           >
@@ -167,10 +160,7 @@ export default function Layout({ children }: LayoutProps) {
           </Drawer>
         )}
       </Box>
-      <Box
-        component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - 240px)` } }}>
         <Toolbar />
         {children}
       </Box>

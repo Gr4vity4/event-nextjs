@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { fetchEventById } from "@/slices/eventSlice";
+import React, { useEffect, useState } from 'react';
+import { fetchEventById } from '@/slices/eventSlice';
 import {
   Alert,
   Box,
@@ -14,22 +14,17 @@ import {
   SnackbarCloseReason,
   Typography,
   useMediaQuery,
-} from "@mui/material";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { formatDate } from "@/utils/dateUtils";
-import {
-  Event,
-  LocationOn,
-  NavigateNext,
-  PeopleAlt,
-} from "@mui/icons-material";
-import SignupTable from "@/components/SignupTable";
-import RegistrationModal from "@/components/RegistrationModal";
-import { useTheme } from "@mui/material/styles";
+} from '@mui/material';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { formatDate } from '@/utils/dateUtils';
+import { Event, LocationOn, NavigateNext, PeopleAlt } from '@mui/icons-material';
+import SignupTable from '@/components/SignupTable';
+import RegistrationModal from '@/components/RegistrationModal';
+import { useTheme } from '@mui/material/styles';
 
 const EventPage = ({ params }: { params: { id: string } }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { events, status, error } = useAppSelector((state) => state.event);
   const dispatch = useAppDispatch();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -63,7 +58,7 @@ const EventPage = ({ params }: { params: { id: string } }) => {
     event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
 
@@ -73,35 +68,24 @@ const EventPage = ({ params }: { params: { id: string } }) => {
   return (
     <Container maxWidth="lg">
       <Box my={4}>
-        {status === "loading" && <p>Loading...</p>}
-        {status === "failed" && <p>Error: {error}</p>}
-        {status === "succeeded" && (
+        {status === 'loading' && <p>Loading...</p>}
+        {status === 'failed' && <p>Error: {error}</p>}
+        {status === 'succeeded' && (
           <>
-            <Breadcrumbs
-              separator={<NavigateNext fontSize="small" />}
-              aria-label="breadcrumb"
-            >
+            <Breadcrumbs separator={<NavigateNext fontSize="small" />} aria-label="breadcrumb">
               <Link color="inherit" href="/">
                 Home
               </Link>
-              <Typography color="text.primary">
-                {events[0].eventName}
-              </Typography>
+              <Typography color="text.primary">{events[0].eventName}</Typography>
             </Breadcrumbs>
-            <Typography
-              variant="h2"
-              component="h1"
-              gutterBottom
-              align="center"
-              sx={{ mt: 4 }}
-            >
+            <Typography variant="h2" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
               {events[0].eventName}
             </Typography>
             <Box
               display="flex"
-              flexDirection={isMobile ? "column" : "row"}
-              alignItems={isMobile ? "flex-start" : "center"}
-              justifyContent={isMobile ? "flex-start" : "center"}
+              flexDirection={isMobile ? 'column' : 'row'}
+              alignItems={isMobile ? 'flex-start' : 'center'}
+              justifyContent={isMobile ? 'flex-start' : 'center'}
               p={2}
               gap={isMobile ? 2 : 4}
             >
@@ -126,14 +110,10 @@ const EventPage = ({ params }: { params: { id: string } }) => {
               <Button
                 variant="contained"
                 fullWidth={isMobile}
-                color={
-                  events[0].availableCapacity > 0 ? "primary" : "secondary"
-                }
-                onClick={
-                  events[0].availableCapacity > 0 ? handleOpenModal : undefined
-                }
+                color={events[0].availableCapacity > 0 ? 'primary' : 'secondary'}
+                onClick={events[0].availableCapacity > 0 ? handleOpenModal : undefined}
               >
-                {events[0].availableCapacity > 0 ? "Register" : "Event Full"}
+                {events[0].availableCapacity > 0 ? 'Register' : 'Event Full'}
               </Button>
             </Box>
             <Divider />
@@ -151,13 +131,9 @@ const EventPage = ({ params }: { params: { id: string } }) => {
               open={showSnackbar}
               autoHideDuration={6000}
               onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: "top", horizontal: "right" }}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
-              <Alert
-                onClose={handleCloseSnackbar}
-                severity="success"
-                sx={{ width: "100%" }}
-              >
+              <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
                 Successfully registered for the event!
               </Alert>
             </Snackbar>

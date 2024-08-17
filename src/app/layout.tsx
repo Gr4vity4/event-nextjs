@@ -1,10 +1,10 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { ReduxProvider } from "@/components/ReduxProvider";
+import type { Metadata } from 'next';
+import './globals.css';
+import { ReduxProvider } from '@/components/ReduxProvider';
 
 export const metadata: Metadata = {
-  title: "Event Registration",
-  description: "Event registrations application",
+  title: 'Event Registration',
+  description: 'Event registrations application',
 };
 
 export default function RootLayout({

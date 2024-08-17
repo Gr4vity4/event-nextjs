@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Alert,
   Box,
@@ -14,20 +14,18 @@ import {
   Stack,
   TextField,
   Typography,
-} from "@mui/material";
-import { Clear as ClearIcon, Search as SearchIcon } from "@mui/icons-material";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { fetchEvents } from "@/slices/eventSlice";
+} from '@mui/material';
+import { Clear as ClearIcon, Search as SearchIcon } from '@mui/icons-material';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchEvents } from '@/slices/eventSlice';
 
-import { Event as EventDataType } from "@/types";
-import EventCard from "@/components/Event/EventCard";
+import { Event as EventDataType } from '@/types';
+import EventCard from '@/components/Event/EventCard';
 
 const EventsPage = () => {
-  const { events, status, error, total, limit } = useAppSelector(
-    (state) => state.event,
-  );
+  const { events, status, error, total, limit } = useAppSelector((state) => state.event);
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [showSnackbar, setShowSnackbar] = useState(false);
 
@@ -36,8 +34,8 @@ const EventsPage = () => {
       fetchEvents({
         page: currentPage,
         limit: 10,
-        sortField: "eventDate",
-        sortOrder: "asc",
+        sortField: 'eventDate',
+        sortOrder: 'asc',
         search: searchTerm,
       }),
     );
@@ -49,14 +47,11 @@ const EventsPage = () => {
   };
 
   const handleClearSearch = () => {
-    setSearchTerm("");
+    setSearchTerm('');
     setCurrentPage(1);
   };
 
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
+  const handlePageChange = (_event: React.ChangeEvent<unknown>, value: number) => {
     setCurrentPage(value);
   };
 
@@ -67,8 +62,8 @@ const EventsPage = () => {
       fetchEvents({
         page: currentPage,
         limit: 10,
-        sortField: "eventDate",
-        sortOrder: "desc",
+        sortField: 'eventDate',
+        sortOrder: 'desc',
         search: searchTerm,
       }),
     );
@@ -78,7 +73,7 @@ const EventsPage = () => {
     event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
-    if (reason === "clickaway") {
+    if (reason === 'clickaway') {
       return;
     }
 
@@ -117,15 +112,12 @@ const EventsPage = () => {
           />
         </Box>
         <Grid container spacing={3}>
-          {status === "loading" && <p>Loading...</p>}
-          {status === "failed" && <p>Error: {error}</p>}
-          {status === "succeeded" &&
+          {status === 'loading' && <p>Loading...</p>}
+          {status === 'failed' && <p>Error: {error}</p>}
+          {status === 'succeeded' &&
             events.map((event: EventDataType) => (
               <Grid item xs={12} sm={6} md={4} key={event.id}>
-                <EventCard
-                  event={event}
-                  onRegistrationSuccess={handleRegistrationSuccess}
-                />
+                <EventCard event={event} onRegistrationSuccess={handleRegistrationSuccess} />
               </Grid>
             ))}
         </Grid>
@@ -142,13 +134,9 @@ const EventsPage = () => {
         open={showSnackbar}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
       >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
+        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
           Successfully registered for the event!
         </Alert>
       </Snackbar>

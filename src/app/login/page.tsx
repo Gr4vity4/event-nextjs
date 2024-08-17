@@ -1,41 +1,34 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { loginUser } from "@/slices/authSlice";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from 'react';
+import { Alert, Box, Button, Container, TextField, Typography } from '@mui/material';
+import { loginUser } from '@/slices/authSlice';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { useRouter } from 'next/navigation';
 
 const LoginPage = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
   const dispatch = useAppDispatch();
   const { status, accessToken } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
     console.log(status, accessToken);
-    if (status === "succeeded" && accessToken) {
-      router.push("/dashboard");
+    if (status === 'succeeded' && accessToken) {
+      router.push('/dashboard');
     }
   }, [status, accessToken, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
 
     try {
       await dispatch(loginUser({ email, password })).unwrap();
     } catch (err) {
-      setError("Invalid email or password. Please try again.");
+      setError('Invalid email or password. Please try again.');
     }
   };
 
@@ -44,9 +37,9 @@ const LoginPage = () => {
       <Box
         sx={{
           marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
         }}
       >
         <Typography component="h1" variant="h5">
@@ -82,12 +75,7 @@ const LoginPage = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            sx={{ mt: 3, mb: 2 }}
-          >
+          <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
             Sign In
           </Button>
         </Box>

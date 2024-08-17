@@ -57,7 +57,7 @@ export interface ExtendedEventCardProps extends EventCardProps {
 
 export interface EventState {
   events: Event[];
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   total: number;
   currentPage: number;
@@ -93,7 +93,7 @@ export interface FetchDataParams {
 }
 
 export interface FetchDataState {
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
   total: number;
   currentPage: number;

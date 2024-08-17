@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import React, { useEffect } from "react";
-import { fetchEventById } from "@/slices/eventSlice";
+import React, { useEffect } from 'react';
+import { fetchEventById } from '@/slices/eventSlice';
 import {
   Box,
   Breadcrumbs,
@@ -10,21 +10,16 @@ import {
   Link,
   Typography,
   useMediaQuery,
-} from "@mui/material";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { formatDate } from "@/utils/dateUtils";
-import {
-  Event,
-  LocationOn,
-  NavigateNext,
-  PeopleAlt,
-} from "@mui/icons-material";
-import SignupTable from "@/components/SignupTable";
-import { useTheme } from "@mui/material/styles";
+} from '@mui/material';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { formatDate } from '@/utils/dateUtils';
+import { Event, LocationOn, NavigateNext, PeopleAlt } from '@mui/icons-material';
+import SignupTable from '@/components/SignupTable';
+import { useTheme } from '@mui/material/styles';
 
 const EventPage = ({ params }: { params: { id: string } }) => {
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const { events, status, error } = useAppSelector((state) => state.event);
   const dispatch = useAppDispatch();
 
@@ -41,35 +36,24 @@ const EventPage = ({ params }: { params: { id: string } }) => {
   return (
     <Container maxWidth="lg">
       <Box my={4}>
-        {status === "loading" && <p>Loading...</p>}
-        {status === "failed" && <p>Error: {error}</p>}
-        {status === "succeeded" && (
+        {status === 'loading' && <p>Loading...</p>}
+        {status === 'failed' && <p>Error: {error}</p>}
+        {status === 'succeeded' && (
           <>
-            <Breadcrumbs
-              separator={<NavigateNext fontSize="small" />}
-              aria-label="breadcrumb"
-            >
+            <Breadcrumbs separator={<NavigateNext fontSize="small" />} aria-label="breadcrumb">
               <Link color="inherit" href="/dashboard">
                 Dashboard
               </Link>
-              <Typography color="text.primary">
-                {events[0].eventName}
-              </Typography>
+              <Typography color="text.primary">{events[0].eventName}</Typography>
             </Breadcrumbs>
-            <Typography
-              variant="h2"
-              component="h1"
-              gutterBottom
-              align="center"
-              sx={{ mt: 4 }}
-            >
+            <Typography variant="h2" component="h1" gutterBottom align="center" sx={{ mt: 4 }}>
               {events[0].eventName}
             </Typography>
             <Box
               display="flex"
-              flexDirection={isMobile ? "column" : "row"}
-              alignItems={isMobile ? "flex-start" : "center"}
-              justifyContent={isMobile ? "flex-start" : "center"}
+              flexDirection={isMobile ? 'column' : 'row'}
+              alignItems={isMobile ? 'flex-start' : 'center'}
+              justifyContent={isMobile ? 'flex-start' : 'center'}
               p={2}
               gap={isMobile ? 2 : 4}
             >

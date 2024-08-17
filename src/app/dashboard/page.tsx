@@ -1,11 +1,6 @@
-import React from "react";
-import { Box, Container, Grid, Paper, Typography } from "@mui/material";
-import {
-  Event as EventIcon,
-  PeopleAlt,
-  TrendingDown,
-  TrendingUp,
-} from "@mui/icons-material";
+import React from 'react';
+import { Box, Container, Grid, Paper, Typography } from '@mui/material';
+import { Event as EventIcon, PeopleAlt, TrendingDown, TrendingUp } from '@mui/icons-material';
 
 interface MetricCardProps {
   title: string;
@@ -14,22 +9,9 @@ interface MetricCardProps {
   trend: number;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({
-  title,
-  value,
-  icon,
-  trend,
-}) => (
-  <Paper
-    elevation={3}
-    sx={{ p: 2, display: "flex", flexDirection: "column", height: 140 }}
-  >
-    <Box
-      display="flex"
-      justifyContent="space-between"
-      alignItems="center"
-      mb={2}
-    >
+const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, trend }) => (
+  <Paper elevation={3} sx={{ p: 2, display: 'flex', flexDirection: 'column', height: 140 }}>
+    <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
       <Typography color="text.secondary" variant="h6" component="div">
         {title}
       </Typography>
@@ -39,15 +21,11 @@ const MetricCard: React.FC<MetricCardProps> = ({
       {value}
     </Typography>
     <Box display="flex" alignItems="center" mt={2}>
-      {trend > 0 ? (
-        <TrendingUp color="success" />
-      ) : (
-        <TrendingDown color="error" />
-      )}
+      {trend > 0 ? <TrendingUp color="success" /> : <TrendingDown color="error" />}
       <Typography
         component="span"
         variant="body2"
-        color={trend > 0 ? "success.main" : "error.main"}
+        color={trend > 0 ? 'success.main' : 'error.main'}
         ml={1}
       >
         {Math.abs(trend)}%
@@ -66,14 +44,14 @@ interface Metric {
 const Dashboard: React.FC = () => {
   const metrics: Metric[] = [
     {
-      title: "Total Events",
-      value: "234",
+      title: 'Total Events',
+      value: '234',
       icon: <EventIcon color="secondary" />,
       trend: 2.6,
     },
     {
-      title: "Total Registrations",
-      value: "1,234",
+      title: 'Total Registrations',
+      value: '1,234',
       icon: <PeopleAlt color="primary" />,
       trend: 5.4,
     },

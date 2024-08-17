@@ -1,12 +1,9 @@
-"use client";
+'use client';
 
-import React, { useEffect, useState } from "react";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  fetchRegistrations,
-  setSortField,
-  setSortOrder,
-} from "@/slices/registrationSlice";
+import { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { fetchRegistrations, setSortField, setSortOrder } from '@/slices/registrationSlice';
+
 import {
   Button,
   Container,
@@ -29,20 +26,22 @@ import {
   TextField,
   Tooltip,
   Typography,
-} from "@mui/material";
+} from '@mui/material';
+
 import {
   Cancel as CancelIcon,
   CheckCircle as CheckCircleIcon,
   Clear as ClearIcon,
   Search as SearchIcon,
   Sort as SortIcon,
-} from "@mui/icons-material";
+} from '@mui/icons-material';
 
 const RegistrationPage: React.FC = () => {
-  const { registrations, status, error, total, limit, sortField, sortOrder } =
-    useAppSelector((state) => state.registration);
+  const { registrations, status, error, total, limit, sortField, sortOrder } = useAppSelector(
+    (state) => state.registration,
+  );
   const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -52,8 +51,8 @@ const RegistrationPage: React.FC = () => {
       fetchRegistrations({
         page: currentPage,
         limit: 10,
-        sortField: "createdAt",
-        sortOrder: "desc",
+        sortField: 'createdAt',
+        sortOrder: 'desc',
         search: searchTerm,
       }),
     );
@@ -65,7 +64,7 @@ const RegistrationPage: React.FC = () => {
   };
 
   const handleClearSearch = () => {
-    setSearchTerm("");
+    setSearchTerm('');
     setCurrentPage(1);
   };
 
@@ -81,9 +80,7 @@ const RegistrationPage: React.FC = () => {
     );
   };
 
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newLimit = parseInt(event.target.value, 10);
     dispatch(
       fetchRegistrations({
@@ -97,8 +94,7 @@ const RegistrationPage: React.FC = () => {
   };
 
   const handleSort = (field: string) => {
-    const newOrder =
-      field === sortField && sortOrder === "asc" ? "desc" : "asc";
+    const newOrder = field === sortField && sortOrder === 'asc' ? 'desc' : 'asc';
     dispatch(setSortField(field));
     dispatch(setSortOrder(newOrder));
     dispatch(
@@ -128,7 +124,7 @@ const RegistrationPage: React.FC = () => {
     }
   };
 
-  console.log("registrations", registrations);
+  console.log('registrations', registrations);
 
   return (
     <Container maxWidth="lg">
@@ -163,10 +159,7 @@ const RegistrationPage: React.FC = () => {
             <TableRow>
               <TableCell>
                 Created At
-                <IconButton
-                  size="small"
-                  onClick={() => handleSort("createdAt")}
-                >
+                <IconButton size="small" onClick={() => handleSort('createdAt')}>
                   <SortIcon />
                 </IconButton>
               </TableCell>
@@ -181,31 +174,26 @@ const RegistrationPage: React.FC = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {status === "loading" && (
+            {status === 'loading' && (
               <TableRow>
                 <TableCell colSpan={4} align="center">
                   Loading...
                 </TableCell>
               </TableRow>
             )}
-            {status === "failed" && (
+            {status === 'failed' && (
               <TableRow>
                 <TableCell colSpan={4} align="center">
                   Error: {error}
                 </TableCell>
               </TableRow>
             )}
-            {status === "succeeded" &&
+            {status === 'succeeded' &&
               registrations.map((registration) => (
                 <TableRow key={registration.id}>
+                  <TableCell>{new Date(registration.createdAt).toLocaleString()}</TableCell>
                   <TableCell>
-                    {new Date(registration.createdAt).toLocaleString()}
-                  </TableCell>
-                  <TableCell>
-                    <Link
-                      href={`/dashboard/events/${registration.event._id}`}
-                      target="_blank"
-                    >
+                    <Link href={`/dashboard/events/${registration.event._id}`} target="_blank">
                       {registration.event.eventName}
                     </Link>
                   </TableCell>
@@ -215,9 +203,7 @@ const RegistrationPage: React.FC = () => {
                   <TableCell>{registration.seatNumber}</TableCell>
 
                   <TableCell>
-                    <Tooltip
-                      title={registration.isActive ? "Active" : "Inactive"}
-                    >
+                    <Tooltip title={registration.isActive ? 'Active' : 'Inactive'}>
                       {registration.isActive ? (
                         <CheckCircleIcon color="success" />
                       ) : (
@@ -226,9 +212,7 @@ const RegistrationPage: React.FC = () => {
                     </Tooltip>
                   </TableCell>
                   <TableCell>
-                    <Button onClick={() => handleOpenDialog(registration.id)}>
-                      Cancel
-                    </Button>
+                    <Button onClick={() => handleOpenDialog(registration.id)}>Cancel</Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -248,8 +232,7 @@ const RegistrationPage: React.FC = () => {
         <DialogTitle>Confirm Cancellation</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            Are you sure you want to cancel this registration? This action
-            cannot be undone.
+            Are you sure you want to cancel this registration? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>

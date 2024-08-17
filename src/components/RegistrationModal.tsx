@@ -1,15 +1,7 @@
-import React, { useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  IconButton,
-  Modal,
-  TextField,
-  Typography,
-} from "@mui/material";
-import { FormData, FormErrors, RegistrationModalProps } from "@/types";
-import CloseIcon from "@mui/icons-material/Close";
+import React, { useState } from 'react';
+import { Alert, Box, Button, IconButton, Modal, TextField, Typography } from '@mui/material';
+import { FormData, FormErrors, RegistrationModalProps } from '@/types';
+import CloseIcon from '@mui/icons-material/Close';
 
 const RegistrationModal = ({
   open,
@@ -18,9 +10,9 @@ const RegistrationModal = ({
   onSubmitSuccess,
 }: RegistrationModalProps) => {
   const [formData, setFormData] = useState<FormData>({
-    firstName: "",
-    lastName: "",
-    phoneNumber: "",
+    firstName: '',
+    lastName: '',
+    phoneNumber: '',
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [apiError, setApiError] = useState<string | null>(null);
@@ -35,13 +27,11 @@ const RegistrationModal = ({
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!formData.firstName.trim())
-      newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
-    if (!formData.phoneNumber.trim())
-      newErrors.phoneNumber = "Phone is required";
+    if (!formData.firstName.trim()) newErrors.firstName = 'First name is required';
+    if (!formData.lastName.trim()) newErrors.lastName = 'Last name is required';
+    if (!formData.phoneNumber.trim()) newErrors.phoneNumber = 'Phone is required';
     if (formData.phoneNumber.length < 10)
-      newErrors.phoneNumber = "Phone must be at least 10 characters";
+      newErrors.phoneNumber = 'Phone must be at least 10 characters';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -54,29 +44,24 @@ const RegistrationModal = ({
         eventId,
       };
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/user-signup`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(preparedData),
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user-signup`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        );
+          body: JSON.stringify(preparedData),
+        });
         if (response.ok) {
           onSubmitSuccess();
         } else {
           // Handle error
-          console.error("Registration failed", response);
+          console.error('Registration failed', response);
           const errorData = await response.json();
-          setApiError(
-            errorData.message || "An error occurred. Please try again.",
-          );
+          setApiError(errorData.message || 'An error occurred. Please try again.');
         }
       } catch (error) {
-        console.error("Error submitting form:", error);
-        setApiError("An unexpected error occurred. Please try again.");
+        console.error('Error submitting form:', error);
+        setApiError('An unexpected error occurred. Please try again.');
       }
     }
   };
@@ -85,12 +70,12 @@ const RegistrationModal = ({
     <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           width: 400,
-          bgcolor: "background.paper",
+          bgcolor: 'background.paper',
           boxShadow: 24,
           p: 4,
         }}
@@ -99,7 +84,7 @@ const RegistrationModal = ({
           aria-label="close"
           onClick={handleClose}
           sx={{
-            position: "absolute",
+            position: 'absolute',
             right: 8,
             top: 8,
             color: (theme) => theme.palette.grey[500],
@@ -161,11 +146,7 @@ const RegistrationModal = ({
             }}
             required
           />
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ width: "100%", mt: 2 }}
-          >
+          <Button type="submit" variant="contained" sx={{ width: '100%', mt: 2 }}>
             Submit
           </Button>
         </form>

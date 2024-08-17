@@ -1,14 +1,8 @@
-import React from "react";
-import {
-  Box,
-  IconButton,
-  ListItem,
-  ListItemSecondaryAction,
-  ListItemText,
-} from "@mui/material";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { Event as EventDataType } from "@/types";
-import { formatDate } from "@/utils/dateUtils";
+import React from 'react';
+import { Box, IconButton, ListItem, ListItemSecondaryAction, ListItemText } from '@mui/material';
+import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Event as EventDataType } from '@/types';
+import { formatDate } from '@/utils/dateUtils';
 
 interface EventListItemProps {
   event: EventDataType;

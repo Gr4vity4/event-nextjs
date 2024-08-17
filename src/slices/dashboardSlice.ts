@@ -1,17 +1,17 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { Event as EventDataType, EventState } from "@/types";
-import { getAccessToken } from "./authSlice";
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import { Event as EventDataType, EventState } from '@/types';
+import { getAccessToken } from './authSlice';
 
 const createHeaders = () => {
   const accessToken = getAccessToken();
   return {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     Authorization: `Bearer ${accessToken}`,
   };
 };
 
 export const fetchEvents = createAsyncThunk(
-  "events/fetchEvents",
+  'events/fetchEvents',
   async ({
     page,
     limit,
@@ -30,38 +30,30 @@ export const fetchEvents = createAsyncThunk(
     );
 
     if (!response.ok) {
-      throw new Error("Failed to fetch events");
+      throw new Error('Failed to fetch events');
     }
     return response.json();
   },
 );
 
-export const fetchEventById = createAsyncThunk(
-  "events/fetchEventById",
-  async (id: string) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/events/${id}`,
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch events");
-    }
-    return response.json();
-  },
-);
+export const fetchEventById = createAsyncThunk('events/fetchEventById', async (id: string) => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch events');
+  }
+  return response.json();
+});
 
 export const addEvent = createAsyncThunk(
-  "events/addEvent",
-  async (event: Omit<Event, "id">, { rejectWithValue }) => {
+  'events/addEvent',
+  async (event: Omit<Event, 'id'>, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/events`,
-        {
-          method: "POST",
-          headers: createHeaders(),
-          body: JSON.stringify(event),
-        },
-      );
-      if (!response.ok) throw new Error("Failed to add events");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, {
+        method: 'POST',
+        headers: createHeaders(),
+        body: JSON.stringify(event),
+      });
+      if (!response.ok) throw new Error('Failed to add events');
       return await response.json();
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -70,18 +62,15 @@ export const addEvent = createAsyncThunk(
 );
 
 export const updateEvent = createAsyncThunk(
-  "events/updateEvent",
+  'events/updateEvent',
   async (event: EventDataType, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/events/${event.id}`,
-        {
-          method: "PATCH",
-          headers: createHeaders(),
-          body: JSON.stringify(event),
-        },
-      );
-      if (!response.ok) throw new Error("Failed to update events");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${event.id}`, {
+        method: 'PATCH',
+        headers: createHeaders(),
+        body: JSON.stringify(event),
+      });
+      if (!response.ok) throw new Error('Failed to update events');
       return await response.json();
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -90,17 +79,14 @@ export const updateEvent = createAsyncThunk(
 );
 
 export const deleteEvent = createAsyncThunk(
-  "events/deleteEvent",
+  'events/deleteEvent',
   async (id: string, { rejectWithValue }) => {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/events/${id}`,
-        {
-          method: "DELETE",
-          headers: createHeaders(),
-        },
-      );
-      if (!response.ok) throw new Error("Failed to delete events");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
+        method: 'DELETE',
+        headers: createHeaders(),
+      });
+      if (!response.ok) throw new Error('Failed to delete events');
       return id;
     } catch (error) {
       return rejectWithValue((error as Error).message);
@@ -110,31 +96,31 @@ export const deleteEvent = createAsyncThunk(
 
 const initialEventState: EventState = {
   events: [],
-  status: "idle",
+  status: 'idle',
   error: null,
   total: 0,
   currentPage: 1,
   limit: 10,
-  sortField: "eventDate",
-  sortOrder: "desc",
-  searchTerm: "",
+  sortField: 'eventDate',
+  sortOrder: 'desc',
+  searchTerm: '',
 };
 
 const eventsSlice = createSlice({
-  name: "events",
+  name: 'events',
   initialState: initialEventState,
   reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchEvents.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(fetchEvents.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status = 'succeeded';
         state.events = action.payload;
       })
       .addCase(fetchEvents.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = 'failed';
         state.error = action.payload as string;
       })
       .addCase(addEvent.fulfilled, (state, action) => {
@@ -146,9 +132,7 @@ const eventsSlice = createSlice({
       })
       .addCase(updateEvent.fulfilled, (state, action) => {
         if (Array.isArray(state.events)) {
-          const index = state.events.findIndex(
-            (event) => event.id === action.payload.id,
-          );
+          const index = state.events.findIndex((event) => event.id === action.payload.id);
           if (index !== -1) {
             state.events[index] = action.payload;
           }
@@ -156,9 +140,7 @@ const eventsSlice = createSlice({
       })
       .addCase(deleteEvent.fulfilled, (state, action) => {
         if (Array.isArray(state.events)) {
-          state.events = state.events.filter(
-            (event) => event.id !== action.payload,
-          );
+          state.events = state.events.filter((event) => event.id !== action.payload);
         }
       });
   },

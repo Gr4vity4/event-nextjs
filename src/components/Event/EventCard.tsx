@@ -1,22 +1,11 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  LinearProgress,
-  Link,
-  Typography,
-} from "@mui/material";
-import { Event, LocationOn, People } from "@mui/icons-material";
-import RegistrationModal from "../RegistrationModal";
-import { ExtendedEventCardProps } from "@/types";
-import { formatDate } from "@/utils/dateUtils";
+import React, { useState } from 'react';
+import { Box, Button, Card, CardContent, LinearProgress, Link, Typography } from '@mui/material';
+import { Event, LocationOn, People } from '@mui/icons-material';
+import RegistrationModal from '../RegistrationModal';
+import { ExtendedEventCardProps } from '@/types';
+import { formatDate } from '@/utils/dateUtils';
 
-const EventCard: React.FC<ExtendedEventCardProps> = ({
-  event,
-  onRegistrationSuccess,
-}) => {
+const EventCard: React.FC<ExtendedEventCardProps> = ({ event, onRegistrationSuccess }) => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const {
@@ -47,9 +36,9 @@ const EventCard: React.FC<ExtendedEventCardProps> = ({
     <>
       <Card
         sx={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
         }}
       >
         <CardContent sx={{ flexGrow: 1 }}>
@@ -87,10 +76,10 @@ const EventCard: React.FC<ExtendedEventCardProps> = ({
           <Button
             variant="contained"
             fullWidth
-            color={availableCapacity > 0 ? "primary" : "secondary"}
+            color={availableCapacity > 0 ? 'primary' : 'secondary'}
             onClick={availableCapacity > 0 ? handleOpenModal : undefined}
           >
-            {availableCapacity > 0 ? "Register" : "Event Full"}
+            {availableCapacity > 0 ? 'Register' : 'Event Full'}
           </Button>
         </CardContent>
       </Card>

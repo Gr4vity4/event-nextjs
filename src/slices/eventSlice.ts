@@ -1,8 +1,8 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Event, EventState } from "@/types";
+import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { Event, EventState } from '@/types';
 
 export const fetchEvents = createAsyncThunk(
-  "events/fetchEvents",
+  'events/fetchEvents',
   async ({
     page,
     limit,
@@ -21,39 +21,34 @@ export const fetchEvents = createAsyncThunk(
     );
 
     if (!response.ok) {
-      throw new Error("Failed to fetch events");
+      throw new Error('Failed to fetch events');
     }
     return response.json();
   },
 );
 
-export const fetchEventById = createAsyncThunk(
-  "events/fetchEventById",
-  async (id: string) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/events/${id}`,
-    );
-    if (!response.ok) {
-      throw new Error("Failed to fetch events");
-    }
-    return response.json();
-  },
-);
+export const fetchEventById = createAsyncThunk('events/fetchEventById', async (id: string) => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`);
+  if (!response.ok) {
+    throw new Error('Failed to fetch events');
+  }
+  return response.json();
+});
 
 const initialEventState: EventState = {
   events: [],
-  status: "idle",
+  status: 'idle',
   error: null,
   total: 0,
   currentPage: 1,
   limit: 10,
-  sortField: "eventDate",
-  sortOrder: "desc",
-  searchTerm: "",
+  sortField: 'eventDate',
+  sortOrder: 'desc',
+  searchTerm: '',
 };
 
 const eventSlice = createSlice({
-  name: "event",
+  name: 'event',
   initialState: initialEventState,
   reducers: {
     setSearchTerm: (state, action: PayloadAction<string>) => {
@@ -69,7 +64,7 @@ const eventSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchEvents.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
       .addCase(
         fetchEvents.fulfilled,
@@ -82,7 +77,7 @@ const eventSlice = createSlice({
             limit: number;
           }>,
         ) => {
-          state.status = "succeeded";
+          state.status = 'succeeded';
           state.events = action.payload.events;
           state.total = action.payload.total;
           state.currentPage = action.payload.page;
@@ -90,22 +85,19 @@ const eventSlice = createSlice({
         },
       )
       .addCase(fetchEvents.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || "Failed to fetch events";
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch events';
       })
       .addCase(fetchEventById.pending, (state) => {
-        state.status = "loading";
+        state.status = 'loading';
       })
-      .addCase(
-        fetchEventById.fulfilled,
-        (state, action: PayloadAction<Event>) => {
-          state.status = "succeeded";
-          state.events = [action.payload];
-        },
-      )
+      .addCase(fetchEventById.fulfilled, (state, action: PayloadAction<Event>) => {
+        state.status = 'succeeded';
+        state.events = [action.payload];
+      })
       .addCase(fetchEventById.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || "Failed to fetch events";
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch events';
       });
   },
 });
