@@ -110,3 +110,21 @@ export interface RegistrationState extends FetchDataState {
 export interface DashboardState extends FetchDataState {
   events: Event[];
 }
+
+export interface EventFormProps {
+  open: boolean;
+  isEditing: boolean;
+  formData: {
+    id: string;
+    eventName: string;
+    eventDescription: string;
+    eventDate: string;
+    eventLocation: string;
+    eventCapacity: number;
+    prefixSeatNumber: string;
+    beginSeatNumber: number;
+  };
+  onClose: () => void;
+  onSubmit: (formData: EventFormProps['formData']) => void;
+  onFormChange: (field: string, value: string) => void;
+}

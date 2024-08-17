@@ -7,24 +7,9 @@ import {
   DialogTitle,
   TextField,
 } from '@mui/material';
+import { EventFormProps } from '@/types';
 
-interface EventFormProps {
-  open: boolean;
-  isEditing: boolean;
-  formData: {
-    id: string;
-    eventName: string;
-    eventDescription: string;
-    eventDate: string;
-    eventLocation: string;
-    eventCapacity: number;
-    prefixSeatNumber: string;
-    beginSeatNumber: number;
-  };
-  onClose: () => void;
-  onSubmit: (formData: EventFormProps['formData']) => void;
-  onFormChange: (field: string, value: string) => void;
-}
+const TodayDate = new Date().toISOString().split('T')[0];
 
 const EventForm: React.FC<EventFormProps> = ({
   open,
@@ -126,6 +111,9 @@ const EventForm: React.FC<EventFormProps> = ({
             InputLabelProps={{ shrink: true }}
             value={formatDate(formData.eventDate)}
             onChange={handleDateChange}
+            inputProps={{
+              min: TodayDate,
+            }}
             required
           />
           <TextField
