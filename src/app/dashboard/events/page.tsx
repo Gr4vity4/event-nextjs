@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Box,
   Button,
   Container,
@@ -16,7 +15,6 @@ import {
   InputAdornment,
   Pagination,
   Paper,
-  Snackbar,
   Stack,
   Table,
   TableBody,
@@ -39,6 +37,7 @@ import { Event as EventDataType } from '@/types';
 import { useRouter } from 'next/navigation';
 import EventForm from '@/components/Event/EventForm';
 import { formatDate } from '@/utils/dateUtils';
+import Notification from '@/components/Notification';
 
 const EventPage = () => {
   const router = useRouter();
@@ -46,11 +45,6 @@ const EventPage = () => {
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackbarOptions, setSnackbarOptions] = useState<any>({
-    message: '',
-    severity: '',
-  });
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState<any>({
     id: '',
@@ -61,6 +55,11 @@ const EventPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
+  });
 
   const fetchEventData = () => {
     dispatch(
@@ -111,19 +110,20 @@ const EventPage = () => {
     }
 
     if (actionResult.type.endsWith('/fulfilled')) {
-      setSnackbarOptions({
+      setNotification({
+        open: true,
         message: isEditing ? 'Event updated successfully!' : 'Event added successfully!',
         severity: 'success',
       });
     } else if (actionResult.type.endsWith('/rejected')) {
-      setSnackbarOptions({
+      setNotification({
+        open: true,
         message: actionResult.payload || 'Failed to process event',
         severity: 'error',
       });
     }
 
     handleClose();
-    setShowSnackbar(true);
     fetchEventData();
   };
 
@@ -145,31 +145,29 @@ const EventPage = () => {
 
   const handleDeleteConfirm = async () => {
     if (eventToDelete) {
-      const actionResult = await dispatch(deleteEvent(eventToDelete));
+      try {
+        const resultAction = await dispatch(deleteEvent(eventToDelete));
 
-      if (actionResult.type.endsWith('/fulfilled')) {
-        setSnackbarOptions({
-          message: 'Event deleted successfully!',
-          severity: 'success',
-        });
-      } else if (actionResult.type.endsWith('/rejected')) {
-        setSnackbarOptions({
-          message: actionResult.payload || 'Failed to delete event',
+        if (deleteEvent.fulfilled.match(resultAction)) {
+          setNotification({
+            open: true,
+            message: 'Event deleted successfully!',
+            severity: 'success',
+          });
+        } else if (deleteEvent.rejected.match(resultAction)) {
+          throw new Error(resultAction.error.message || 'Failed to delete event');
+        }
+      } catch (error) {
+        setNotification({
+          open: true,
+          message: error instanceof Error ? error.message : 'An unknown error occurred',
           severity: 'error',
         });
+      } finally {
+        fetchEventData();
       }
-
-      setShowSnackbar(true);
-      fetchEventData();
     }
     handleDeleteConfirmClose();
-  };
-
-  const handleCloseSnackbar = (event: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setShowSnackbar(false);
   };
 
   const handleFormChange = (field: string, value: string) => {
@@ -180,6 +178,10 @@ const EventPage = () => {
 
   const handleEventClick = (eventId: string) => {
     router.push(`/dashboard/events/${eventId}`);
+  };
+
+  const handleCloseNotification = () => {
+    setNotification({ ...notification, open: false });
   };
 
   return (
@@ -324,20 +326,12 @@ const EventPage = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <Snackbar
-        open={showSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarOptions.severity}
-          sx={{ width: '100%' }}
-        >
-          {snackbarOptions.message}
-        </Alert>
-      </Snackbar>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={handleCloseNotification}
+      />
     </>
   );
 };
