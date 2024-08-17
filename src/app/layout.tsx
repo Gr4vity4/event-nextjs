@@ -4,7 +4,7 @@ import { ReduxProvider } from "@/components/ReduxProvider";
 
 export const metadata: Metadata = {
   title: "Event Registration",
-  description: "Event registration application",
+  description: "Event registrations application",
 };
 
 export default function RootLayout({

@@ -1,299 +1,100 @@
-"use client";
-
-import React, { useEffect, useState } from "react";
+import React from "react";
+import { Box, Container, Grid, Paper, Typography } from "@mui/material";
 import {
-  Alert,
-  Box,
-  Button,
-  Container,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Grid,
-  IconButton,
-  InputAdornment,
-  List,
-  Pagination,
-  Snackbar,
-  Stack,
-  TextField,
-} from "@mui/material";
-import { Clear as ClearIcon, Search as SearchIcon } from "@mui/icons-material";
-import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  addEvent,
-  deleteEvent,
-  fetchEvents,
-  updateEvent,
-} from "@/slices/dashboardSlice";
-import { Event as EventDataType } from "@/types";
-import { useRouter } from "next/navigation";
-import EventForm from "@/components/Event/EventForm";
-import EventListItem from "@/components/Event/EventListItem";
+  Event as EventIcon,
+  PeopleAlt,
+  TrendingDown,
+  TrendingUp,
+} from "@mui/icons-material";
 
-const DashboardPage = () => {
-  const router = useRouter();
-  const { events, status, error, total, limit } = useAppSelector(
-    (state) => state.event,
-  );
-  const dispatch = useAppDispatch();
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [showSnackbar, setShowSnackbar] = useState(false);
-  const [snackbarOptions, setSnackbarOptions] = useState<any>({
-    message: "",
-    severity: "",
-  });
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<any>({
-    id: "",
-    eventName: "",
-    eventDescription: "",
-    eventDate: "",
-  });
-  const [isEditing, setIsEditing] = useState(false);
-  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-  const [eventToDelete, setEventToDelete] = useState<string | null>(null);
+interface MetricCardProps {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  trend: number;
+}
 
-  const fetchEventData = () => {
-    dispatch(
-      fetchEvents({
-        page: currentPage,
-        limit: 10,
-        sortField: "createdAt",
-        sortOrder: "desc",
-        search: searchTerm,
-      }),
-    );
-  };
+const MetricCard: React.FC<MetricCardProps> = ({
+  title,
+  value,
+  icon,
+  trend,
+}) => (
+  <Paper
+    elevation={3}
+    sx={{ p: 2, display: "flex", flexDirection: "column", height: 140 }}
+  >
+    <Box
+      display="flex"
+      justifyContent="space-between"
+      alignItems="center"
+      mb={2}
+    >
+      <Typography color="text.secondary" variant="h6" component="div">
+        {title}
+      </Typography>
+      {icon}
+    </Box>
+    <Typography component="p" variant="h4">
+      {value}
+    </Typography>
+    <Box display="flex" alignItems="center" mt={2}>
+      {trend > 0 ? (
+        <TrendingUp color="success" />
+      ) : (
+        <TrendingDown color="error" />
+      )}
+      <Typography
+        component="span"
+        variant="body2"
+        color={trend > 0 ? "success.main" : "error.main"}
+        ml={1}
+      >
+        {Math.abs(trend)}%
+      </Typography>
+    </Box>
+  </Paper>
+);
 
-  useEffect(() => {
-    fetchEventData();
-  }, [dispatch, currentPage, searchTerm, limit]);
+interface Metric {
+  title: string;
+  value: string;
+  icon: React.ReactNode;
+  trend: number;
+}
 
-  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-    setCurrentPage(1);
-  };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (
-    _event: React.ChangeEvent<unknown>,
-    value: number,
-  ) => {
-    setCurrentPage(value);
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-    setIsEditing(false);
-    setFormData({ id: "", eventName: "", eventDescription: "", eventDate: "" });
-  };
-
-  const handleClose = () => {
-    setOpen(false);
-  };
-
-  const handleSubmit = async () => {
-    let actionResult;
-    if (isEditing) {
-      actionResult = await dispatch(updateEvent(formData));
-    } else {
-      actionResult = await dispatch(addEvent(formData));
-    }
-
-    if (actionResult.type.endsWith("/fulfilled")) {
-      setSnackbarOptions({
-        message: isEditing
-          ? "Event updated successfully!"
-          : "Event added successfully!",
-        severity: "success",
-      });
-    } else if (actionResult.type.endsWith("/rejected")) {
-      setSnackbarOptions({
-        message: actionResult.payload || "Failed to process event",
-        severity: "error",
-      });
-    }
-
-    handleClose();
-    setShowSnackbar(true);
-    fetchEventData();
-  };
-
-  const handleEdit = (event: EventDataType) => {
-    setFormData(event);
-    setIsEditing(true);
-    setOpen(true);
-  };
-
-  const handleDeleteConfirmOpen = (id: string) => {
-    setEventToDelete(id);
-    setDeleteConfirmOpen(true);
-  };
-
-  const handleDeleteConfirmClose = () => {
-    setDeleteConfirmOpen(false);
-    setEventToDelete(null);
-  };
-
-  const handleDeleteConfirm = async () => {
-    if (eventToDelete) {
-      const actionResult = await dispatch(deleteEvent(eventToDelete));
-
-      if (actionResult.type.endsWith("/fulfilled")) {
-        setSnackbarOptions({
-          message: "Event deleted successfully!",
-          severity: "success",
-        });
-      } else if (actionResult.type.endsWith("/rejected")) {
-        setSnackbarOptions({
-          message: actionResult.payload || "Failed to delete event",
-          severity: "error",
-        });
-      }
-
-      setShowSnackbar(true);
-      fetchEventData();
-    }
-    handleDeleteConfirmClose();
-  };
-
-  const handleCloseSnackbar = (
-    event: React.SyntheticEvent | Event,
-    reason?: string,
-  ) => {
-    if (reason === "clickaway") {
-      return;
-    }
-    setShowSnackbar(false);
-  };
-
-  const handleFormChange = (field: string, value: string) => {
-    setFormData({ ...formData, [field]: value });
-  };
-
-  const totalPages = Math.ceil(total / limit);
-
-  const handleEventClick = (eventId: string) => {
-    router.push(`/dashboard/events/${eventId}`);
-  };
+const Dashboard: React.FC = () => {
+  const metrics: Metric[] = [
+    {
+      title: "Total Events",
+      value: "234",
+      icon: <EventIcon color="secondary" />,
+      trend: 2.6,
+    },
+    {
+      title: "Total Registrations",
+      value: "1,234",
+      icon: <PeopleAlt color="primary" />,
+      trend: 5.4,
+    },
+  ];
 
   return (
-    <>
-      <Container maxWidth="lg">
-        <Box my={4}>
-          <Box mb={4}>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="Search events..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon />
-                  </InputAdornment>
-                ),
-                endAdornment: searchTerm && (
-                  <InputAdornment position="end">
-                    <IconButton onClick={handleClearSearch} edge="end">
-                      <ClearIcon />
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Box>
-          <Box display="flex" justifyContent="flex-end">
-            <Button
-              variant="contained"
-              onClick={handleClickOpen}
-              sx={{ mb: 2 }}
-            >
-              Add New Event
-            </Button>
-          </Box>
-          <Grid container spacing={3}>
-            {status === "loading" && <p>Loading...</p>}
-            {status === "failed" && <p>Error: {error}</p>}
-            {status === "succeeded" && (
-              <Grid item xs={12}>
-                <List>
-                  {events.map((event: EventDataType) => (
-                    <EventListItem
-                      key={event.id}
-                      event={event}
-                      onEventClick={handleEventClick}
-                      onEdit={handleEdit}
-                      onDeleteConfirm={handleDeleteConfirmOpen}
-                    />
-                  ))}
-                </List>
-              </Grid>
-            )}
-          </Grid>
-          <Stack spacing={2} alignItems="center" mt={4}>
-            <Pagination
-              count={totalPages}
-              page={currentPage}
-              onChange={handlePageChange}
-              color="primary"
-            />
-          </Stack>
-        </Box>
-      </Container>
-      <EventForm
-        open={open}
-        isEditing={isEditing}
-        formData={formData}
-        onClose={handleClose}
-        onSubmit={handleSubmit}
-        onFormChange={handleFormChange}
-      />
-      <Dialog
-        open={deleteConfirmOpen}
-        onClose={handleDeleteConfirmClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">{"Confirm Delete"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to delete this event? This action cannot be
-            undone.
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleDeleteConfirmClose}>Cancel</Button>
-          <Button onClick={handleDeleteConfirm} autoFocus>
-            Delete
-          </Button>
-        </DialogActions>
-      </Dialog>
-      <Snackbar
-        open={showSnackbar}
-        autoHideDuration={3000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={handleCloseSnackbar}
-          severity={snackbarOptions.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarOptions.message}
-        </Alert>
-      </Snackbar>
-    </>
+    <Container maxWidth="lg">
+      <Typography variant="h4" component="h1" gutterBottom>
+        Dashboard
+      </Typography>
+      <Box sx={{ flexGrow: 1 }}>
+        <Grid container spacing={3}>
+          {metrics.map((metric, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <MetricCard {...metric} />
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
+    </Container>
   );
 };
 
-export default DashboardPage;
+export default Dashboard;
