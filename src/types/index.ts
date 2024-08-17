@@ -12,6 +12,8 @@ export interface Signup {
 }
 
 export interface Event {
+  _id?: string;
+  id: string;
   eventName: string;
   eventDate: string;
   eventLocation: string;
@@ -24,7 +26,6 @@ export interface Event {
   signups: Signup[];
   signupCount: number;
   availableCapacity: number;
-  id: string;
 }
 
 export interface EventCardProps {
@@ -77,3 +78,39 @@ export const initialEventState: EventState = {
   sortOrder: "desc",
   searchTerm: "",
 };
+
+export interface UserSignup {
+  id: string;
+  eventId: string;
+  event: Event;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  seatNumber: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface FetchDataParams {
+  page: number;
+  limit: number;
+  sortField: string;
+  sortOrder: string;
+  search: string;
+}
+
+export interface FetchDataState {
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+  total: number;
+  currentPage: number;
+  limit: number;
+  sortField: string;
+  sortOrder: string;
+  searchTerm: string;
+}
+
+export interface RegistrationState extends FetchDataState {
+  registrations: UserSignup[];
+}

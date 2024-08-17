@@ -1,6 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import {
+  fetchRegistrations,
+  setSortField,
+  setSortOrder,
+} from "@/slices/registrationSlice";
 import {
   Button,
   Container,
@@ -10,53 +16,101 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  InputAdornment,
+  Link,
   Paper,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
+  TextField,
   Tooltip,
   Typography,
 } from "@mui/material";
-import CancelIcon from "@mui/icons-material/Cancel";
+import {
+  Cancel as CancelIcon,
+  CheckCircle as CheckCircleIcon,
+  Clear as ClearIcon,
+  Search as SearchIcon,
+  Sort as SortIcon,
+} from "@mui/icons-material";
 
-interface Registration {
-  id: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  seatNumber: string;
-  createdAt: Date;
-  isCancelled: boolean;
-}
-
-const RegistrationTable: React.FC = () => {
-  const [registrations, setRegistrations] = useState<Registration[]>([
-    {
-      id: "1",
-      firstName: "John",
-      lastName: "Doe",
-      phoneNumber: "123-456-7890",
-      seatNumber: "A1",
-      createdAt: new Date("2024-08-17T10:00:00"),
-      isCancelled: false,
-    },
-    {
-      id: "2",
-      firstName: "Jane",
-      lastName: "Smith",
-      phoneNumber: "098-765-4321",
-      seatNumber: "B2",
-      createdAt: new Date("2024-08-17T11:30:00"),
-      isCancelled: false,
-    },
-    // Add more mock data as needed
-  ]);
-
+const RegistrationPage: React.FC = () => {
+  const { registrations, status, error, total, limit, sortField, sortOrder } =
+    useAppSelector((state) => state.registration);
+  const dispatch = useAppDispatch();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [openDialog, setOpenDialog] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    dispatch(
+      fetchRegistrations({
+        page: currentPage,
+        limit: 10,
+        sortField: "createdAt",
+        sortOrder: "desc",
+        search: searchTerm,
+      }),
+    );
+  }, []);
+
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
+    setCurrentPage(1);
+  };
+
+  const handleChangePage = (event: unknown, newPage: number) => {
+    dispatch(
+      fetchRegistrations({
+        page: newPage + 1,
+        limit,
+        sortField,
+        sortOrder,
+        search: searchTerm,
+      }),
+    );
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    const newLimit = parseInt(event.target.value, 10);
+    dispatch(
+      fetchRegistrations({
+        page: 1,
+        limit: newLimit,
+        sortField,
+        sortOrder,
+        search: searchTerm,
+      }),
+    );
+  };
+
+  const handleSort = (field: string) => {
+    const newOrder =
+      field === sortField && sortOrder === "asc" ? "desc" : "asc";
+    dispatch(setSortField(field));
+    dispatch(setSortOrder(newOrder));
+    dispatch(
+      fetchRegistrations({
+        page: currentPage,
+        limit,
+        sortField: field,
+        sortOrder: newOrder,
+        search: searchTerm,
+      }),
+    );
+  };
 
   const handleOpenDialog = (id: string) => {
     setSelectedId(id);
@@ -70,96 +124,137 @@ const RegistrationTable: React.FC = () => {
 
   const handleCancel = () => {
     if (selectedId) {
-      setRegistrations(
-        registrations.map((reg) =>
-          reg.id === selectedId ? { ...reg, isCancelled: true } : reg,
-        ),
-      );
       handleCloseDialog();
     }
   };
+
+  console.log("registrations", registrations);
 
   return (
     <Container maxWidth="lg">
       <Typography variant="h4" component="h1" gutterBottom>
         Registrations
       </Typography>
-      <TableContainer component={Paper}>
-        <Table sx={{ minWidth: 650 }} aria-label="registration table">
+      <TextField
+        fullWidth
+        variant="outlined"
+        placeholder="Search..."
+        value={searchTerm}
+        onChange={handleSearchChange}
+        size="small"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          ),
+          endAdornment: searchTerm && (
+            <InputAdornment position="end">
+              <IconButton onClick={handleClearSearch} edge="end">
+                <ClearIcon />
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+      <TableContainer sx={{ mt: 3 }} component={Paper}>
+        <Table>
           <TableHead>
             <TableRow>
+              <TableCell>
+                Created At
+                <IconButton
+                  size="small"
+                  onClick={() => handleSort("createdAt")}
+                >
+                  <SortIcon />
+                </IconButton>
+              </TableCell>
+              <TableCell>Event</TableCell>
               <TableCell>First Name</TableCell>
               <TableCell>Last Name</TableCell>
               <TableCell>Phone Number</TableCell>
               <TableCell>Seat Number</TableCell>
-              <TableCell>Created At</TableCell>
-              <TableCell align="center">Status</TableCell>
-              <TableCell align="center">Action</TableCell>
+
+              <TableCell>Status</TableCell>
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {registrations.map((row) => (
-              <TableRow
-                key={row.id}
-                sx={{
-                  "&:last-child td, &:last-child th": { border: 0 },
-                  backgroundColor: row.isCancelled ? "#ffebee" : "inherit",
-                }}
-              >
-                <TableCell component="th" scope="row">
-                  {row.firstName}
-                </TableCell>
-                <TableCell>{row.lastName}</TableCell>
-                <TableCell>{row.phoneNumber}</TableCell>
-                <TableCell>{row.seatNumber}</TableCell>
-                <TableCell>{row.createdAt.toLocaleString()}</TableCell>
-                <TableCell align="center">
-                  {row.isCancelled ? "Cancelled" : "Active"}
-                </TableCell>
-                <TableCell align="center">
-                  <Tooltip
-                    title={
-                      row.isCancelled
-                        ? "Already cancelled"
-                        : "Cancel registration"
-                    }
-                  >
-                    <span>
-                      <IconButton
-                        aria-label="cancel"
-                        onClick={() => handleOpenDialog(row.id)}
-                        color="error"
-                        disabled={row.isCancelled}
-                      >
-                        <CancelIcon />
-                      </IconButton>
-                    </span>
-                  </Tooltip>
+            {status === "loading" && (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  Loading...
                 </TableCell>
               </TableRow>
-            ))}
+            )}
+            {status === "failed" && (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  Error: {error}
+                </TableCell>
+              </TableRow>
+            )}
+            {status === "succeeded" &&
+              registrations.map((registration) => (
+                <TableRow key={registration.id}>
+                  <TableCell>
+                    {new Date(registration.createdAt).toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    <Link
+                      href={`/dashboard/events/${registration.event._id}`}
+                      target="_blank"
+                    >
+                      {registration.event.eventName}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{registration.firstName}</TableCell>
+                  <TableCell>{registration.lastName}</TableCell>
+                  <TableCell>{registration.phoneNumber}</TableCell>
+                  <TableCell>{registration.seatNumber}</TableCell>
+
+                  <TableCell>
+                    <Tooltip
+                      title={registration.isActive ? "Active" : "Inactive"}
+                    >
+                      {registration.isActive ? (
+                        <CheckCircleIcon color="success" />
+                      ) : (
+                        <CancelIcon color="error" />
+                      )}
+                    </Tooltip>
+                  </TableCell>
+                  <TableCell>
+                    <Button onClick={() => handleOpenDialog(registration.id)}>
+                      Cancel
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
+      <TablePagination
+        component="div"
+        count={total}
+        page={currentPage - 1}
+        onPageChange={handleChangePage}
+        rowsPerPage={limit}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+      />
 
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        <DialogTitle id="alert-dialog-title">
-          {"Confirm Cancellation"}
-        </DialogTitle>
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Confirm Cancellation</DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
+          <DialogContentText>
             Are you sure you want to cancel this registration? This action
             cannot be undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseDialog}>No, Keep Registration</Button>
-          <Button onClick={handleCancel} color="error" autoFocus>
+          <Button onClick={handleCancel} color="error">
             Yes, Cancel Registration
           </Button>
         </DialogActions>
@@ -168,4 +263,4 @@ const RegistrationTable: React.FC = () => {
   );
 };
 
-export default RegistrationTable;
+export default RegistrationPage;
