@@ -55,8 +55,10 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await dispatch(logoutUser()).unwrap();
-      router.push('/login');
+      await dispatch(logoutUser());
+      setTimeout(() => {
+        router.push('/login');
+      }, 1000);
     } catch (error) {
       console.error('Logout failed:', error);
     }
