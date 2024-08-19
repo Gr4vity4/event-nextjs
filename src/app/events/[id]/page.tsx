@@ -3,15 +3,12 @@
 import React, { useEffect, useState } from 'react';
 import { fetchEventById } from '@/slices/eventSlice';
 import {
-  Alert,
   Box,
   Breadcrumbs,
   Button,
   Container,
   Divider,
   Link,
-  Snackbar,
-  SnackbarCloseReason,
   Typography,
   useMediaQuery,
 } from '@mui/material';
@@ -21,6 +18,7 @@ import { Event, LocationOn, NavigateNext, PeopleAlt } from '@mui/icons-material'
 import SignupTable from '@/components/SignupTable';
 import RegistrationModal from '@/components/RegistrationModal';
 import { useTheme } from '@mui/material/styles';
+import Notification from '@/components/Notification';
 
 const EventPage = ({ params }: { params: { id: string } }) => {
   const theme = useTheme();
@@ -28,7 +26,11 @@ const EventPage = ({ params }: { params: { id: string } }) => {
   const { events, status, error } = useAppSelector((state) => state.event);
   const dispatch = useAppDispatch();
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
+  });
 
   const fetchEventDetail = async (id: string) => {
     dispatch(fetchEventById(id));
@@ -49,20 +51,13 @@ const EventPage = ({ params }: { params: { id: string } }) => {
   };
 
   const handleRegistrationSuccess = () => {
-    setShowSnackbar(true);
+    setNotification({
+      open: true,
+      message: 'Successfully registered for the event!',
+      severity: 'success',
+    });
     handleCloseModal();
     fetchEventDetail(params.id);
-  };
-
-  const handleCloseSnackbar = (
-    event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setShowSnackbar(false);
   };
 
   return (
@@ -127,16 +122,13 @@ const EventPage = ({ params }: { params: { id: string } }) => {
               Registered Participants
             </Typography>
             <SignupTable signups={events[0].signups} />
-            <Snackbar
-              open={showSnackbar}
-              autoHideDuration={6000}
-              onClose={handleCloseSnackbar}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-            >
-              <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-                Successfully registered for the event!
-              </Alert>
-            </Snackbar>
+
+            <Notification
+              open={notification.open}
+              message={notification.message}
+              severity={notification.severity}
+              onClose={() => setNotification({ ...notification, open: false })}
+            />
             <RegistrationModal
               open={isModalOpen}
               handleClose={handleCloseModal}

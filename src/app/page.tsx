@@ -1,16 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Alert,
   Box,
   Container,
   Grid,
   IconButton,
   InputAdornment,
   Pagination,
-  Snackbar,
-  SnackbarCloseReason,
   Stack,
   TextField,
   Typography,
@@ -21,13 +18,18 @@ import { fetchEvents } from '@/slices/eventSlice';
 
 import { Event as EventDataType } from '@/types';
 import EventCard from '@/components/Event/EventCard';
+import Notification from '@/components/Notification';
 
 const EventsPage = () => {
   const { events, status, error, total, limit } = useAppSelector((state) => state.event);
   const dispatch = useAppDispatch();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [showSnackbar, setShowSnackbar] = useState(false);
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success' as 'success' | 'error' | 'info' | 'warning',
+  });
 
   useEffect(() => {
     dispatch(
@@ -56,28 +58,21 @@ const EventsPage = () => {
   };
 
   const handleRegistrationSuccess = () => {
-    setShowSnackbar(true);
+    setNotification({
+      open: true,
+      message: 'Successfully registered for the event!',
+      severity: 'success',
+    });
     // Re-fetch events data
     dispatch(
       fetchEvents({
         page: currentPage,
         limit: 10,
         sortField: 'eventDate',
-        sortOrder: 'desc',
+        sortOrder: 'asc',
         search: searchTerm,
       }),
     );
-  };
-
-  const handleCloseSnackbar = (
-    event: React.SyntheticEvent | Event,
-    reason?: SnackbarCloseReason,
-  ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setShowSnackbar(false);
   };
 
   const totalPages = Math.ceil(total / limit);
@@ -130,16 +125,12 @@ const EventsPage = () => {
           />
         </Stack>
       </Box>
-      <Snackbar
-        open={showSnackbar}
-        autoHideDuration={6000}
-        onClose={handleCloseSnackbar}
-        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-      >
-        <Alert onClose={handleCloseSnackbar} severity="success" sx={{ width: '100%' }}>
-          Successfully registered for the event!
-        </Alert>
-      </Snackbar>
+      <Notification
+        open={notification.open}
+        message={notification.message}
+        severity={notification.severity}
+        onClose={() => setNotification({ ...notification, open: false })}
+      />
     </Container>
   );
 };
