@@ -12,14 +12,13 @@ const LoginPage = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const dispatch = useAppDispatch();
-  const { status, accessToken } = useAppSelector((state) => state.auth);
+  const { status } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    console.log(status, accessToken);
-    if (status === 'succeeded' && accessToken) {
+    if (status === 'succeeded') {
       router.push('/dashboard');
     }
-  }, [status, accessToken, router]);
+  }, [status, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,28 +1,32 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   if (path.startsWith('/dashboard')) {
-    // Check for the token in cookies instead of headers
-    const accessToken = request.cookies.get('accessToken')?.value;
-
-    if (!accessToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
+        method: 'GET',
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+          Cookie: cookies().toString(),
         },
+        credentials: 'include',
       });
 
       if (!res.ok) {
-        throw new Error('Invalid token');
+        const errorData = await res.json();
+        console.log('API Error:', errorData);
+        throw new Error(errorData.message || 'API request failed');
       }
+
+      const userData = await res.json();
+      console.log('User Data:', userData);
     } catch (error) {
+      console.error('Middleware Error:', error);
+      console.log('Cookies:', cookies().toString());
       return NextResponse.redirect(new URL('/login', request.url));
     }
   }

@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { FetchDataParams, RegistrationState } from '@/types';
-import { getAccessToken } from './authSlice';
 
 export const fetchRegistrations = createAsyncThunk(
   'registrations/fetchRegistrations',
@@ -9,10 +8,8 @@ export const fetchRegistrations = createAsyncThunk(
       `${process.env.NEXT_PUBLIC_API_URL}/user-signup?page=${page}&limit=${limit}&sortField=${sortField}&sortOrder=${sortOrder}&search=${search}`,
       {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${getAccessToken()}`,
-        },
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       },
     );
 
@@ -30,10 +27,8 @@ export const cancelRegistration = createAsyncThunk(
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/user-signup/${id}/cancel`, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${getAccessToken()}`,
-      },
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
     });
 
     if (!response.ok) {

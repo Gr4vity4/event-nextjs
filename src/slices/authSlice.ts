@@ -1,33 +1,15 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import Cookies from 'js-cookie';
 
 interface AuthState {
   status: string;
   error: string | null;
   user: any | null;
-  accessToken: string | null;
 }
 
 const initialState: AuthState = {
   status: 'idle',
   error: null,
   user: null,
-  accessToken: null,
-};
-
-// Helper function to set the access token
-const setAccessToken = (token: string) => {
-  Cookies.set('accessToken', token, { expires: 7 }); // expires in 7 days
-};
-
-// Helper function to get the access token
-export const getAccessToken = (): string | null => {
-  return Cookies.get('accessToken') || null;
-};
-
-// Helper function to remove the access token
-const removeAccessToken = () => {
-  Cookies.remove('accessToken');
 };
 
 export const loginUser = createAsyncThunk(
@@ -48,7 +30,7 @@ export const loginUser = createAsyncThunk(
       }
 
       const data = await response.json();
-      setAccessToken(data.accessToken);
+      console.log('loginUser:', data);
       return data;
     } catch (error) {
       return rejectWithValue((error as Error).message || 'An unexpected error occurred');
@@ -58,16 +40,10 @@ export const loginUser = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
-    const accessToken = getAccessToken();
-    if (!accessToken) {
-      throw new Error('Access token not found');
-    }
-
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
       credentials: 'include', // Required for cookies
     });
@@ -76,7 +52,6 @@ export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWith
       throw new Error('Logout failed');
     }
 
-    removeAccessToken();
     return null;
   } catch (error) {
     return rejectWithValue((error as Error).message || 'An unexpected error occurred');
@@ -85,16 +60,10 @@ export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWith
 
 export const getProfileUser = createAsyncThunk('auth/profile', async (_, { rejectWithValue }) => {
   try {
-    const accessToken = getAccessToken();
-    if (!accessToken) {
-      throw new Error('Access token not found');
-    }
-
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/profile`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
       },
     });
 
@@ -116,8 +85,6 @@ const authSlice = createSlice({
       state.error = null;
       state.status = 'idle';
       state.user = null;
-      state.accessToken = null;
-      removeAccessToken();
     },
   },
   extraReducers: (builder) => {
@@ -129,7 +96,6 @@ const authSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.user = action.payload;
-        state.accessToken = action.payload.accessToken;
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.status = 'failed';
@@ -154,8 +120,6 @@ const authSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.status = 'succeeded';
         state.user = null;
-        state.accessToken = null;
-        removeAccessToken();
       })
       .addCase(logoutUser.rejected, (state, action) => {
         state.status = 'failed';

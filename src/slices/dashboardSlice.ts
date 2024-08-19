@@ -1,14 +1,5 @@
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { Event as EventDataType, EventState, FetchDataParams } from '@/types';
-import { getAccessToken } from './authSlice';
-
-const createHeaders = () => {
-  const accessToken = getAccessToken();
-  return {
-    'Content-Type': 'application/json',
-    Authorization: `Bearer ${accessToken}`,
-  };
-};
 
 export const fetchEvents = createAsyncThunk(
   'events/fetchEvents',
@@ -38,7 +29,8 @@ export const addEvent = createAsyncThunk(
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events`, {
         method: 'POST',
-        headers: createHeaders(),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(event),
       });
       if (!response.ok) throw new Error('Failed to add events');
@@ -56,7 +48,8 @@ export const updateEvent = createAsyncThunk(
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${event.id}`, {
         method: 'PATCH',
-        headers: createHeaders(),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify(event),
       });
       if (!response.ok) throw new Error('Failed to update events');
@@ -74,7 +67,8 @@ export const deleteEvent = createAsyncThunk(
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/${id}`, {
         method: 'DELETE',
-        headers: createHeaders(),
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
       });
       if (!response.ok) throw new Error('Failed to delete events');
 
